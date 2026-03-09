@@ -37,23 +37,6 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
       : 0;
   const basePath = process.env.NEXT_PUBLIC_PATH || "";
 
-  // const getImageUrl = (image: any): string => {
-  //   if (!image) return " ";
-
-  //   // যদি image string হয় এবং HTTP path না হয়
-  //   if (typeof image === "string") {
-  //     if (image.startsWith("http")) return image;
-  //     return `${basePath}/${image}`; // ← full URL
-  //   }
-
-  //   if (image?.file_name) return `${basePath}/${image.file_name}`;
-  //   if (image?.upload_path) return `${basePath}/${image.upload_path}`;
-
-  //   return " ";
-  // };
-
-  // const imageUrl = getImageUrl(product.image);
-
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () =>
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
@@ -77,8 +60,8 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
             slug: product.slug,
             newPrice: discountedPrice,
             weight: "",
-            image: getCartImageUrl(product.image),
-            imageTwo: getCartImageUrl(product.image),
+            image: getCartImageUrl(product.thumbnail?.file_name),
+            imageTwo: getCartImageUrl(product.thumbnail?.file_name),
             date: new Date().toISOString(),
             status: product.current_stock > 0 ? "In Stock" : "Out Of Stock",
             rating: 0,
@@ -100,7 +83,7 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
     }
   };
 
-  const description = (product as any).short_description || null;
+  const description = (product as any)?.short_description || "";
 
   const isInStock = product.current_stock > 0;
 
@@ -112,9 +95,9 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
           <SingleProductSlider
             product={{
               ...product,
-              image: getCartImageUrl(product.image),
+              image: getCartImageUrl(product.thumbnail?.file_name),
               thumbnail: {
-                file_name: getCartImageUrl(product.image),
+                file_name: getCartImageUrl(product.thumbnail?.file_name),
               },
             }}
           />
@@ -137,7 +120,7 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
             ) : (
               <p
                 style={{
-                  ...styles.description,
+                  ...styles.short_description,
                   color: "#aaa",
                   fontStyle: "italic",
                 }}
@@ -208,6 +191,16 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
                 )}
               </button>
             </div>
+            {product.tags && (
+              <div style={styles.tags}>
+                <h6>Tags:</h6>
+                {product.tags.split(",").map((tag: string, index: number) => (
+                  <span key={index} style={styles.tag}>
+                    {tag.trim()}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </Col>
       </Row>
@@ -219,6 +212,20 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
 const styles: Record<string, any> = {
   contact: {
     padding: "8px 0",
+  },
+  tags: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "8px",
+    marginBottom: "12px",
+  },
+
+  tag: {
+    background: "#ACE2F7",
+    padding: "4px 10px",
+    borderRadius: "12px",
+    fontSize: "12px",
+    color: "#555",
   },
   titleWrap: {
     marginBottom: "10px",

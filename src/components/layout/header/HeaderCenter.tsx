@@ -79,7 +79,7 @@ const HeaderCenter = ({ wishlistItem, cartSlice }: any) => {
     setSearchInput(event.target.value);
   };
 
-  // ✅ Search by selected category using /filter/categories endpoint
+  //   Search by selected category using /filter/categories endpoint
   const handleSubmit = (event: any) => {
     event.preventDefault();
     dispatch(setSearchTerm(searchInput));
@@ -88,7 +88,7 @@ const HeaderCenter = ({ wishlistItem, cartSlice }: any) => {
     if (searchInput) params.set("keyword", searchInput);
     if (selectedItem?.id) params.set("category_id", selectedItem.id);
 
-    router.push(`/filter/categories?${params.toString()}`);
+    router.push(`/all-products?${params.toString()}`);
   };
 
   const openCart = () => setIsCartOpen(true);
@@ -139,7 +139,7 @@ const HeaderCenter = ({ wishlistItem, cartSlice }: any) => {
   const openCategoryPopup = () => setIsPopupOpen(true);
   const closeCategoryPopup = () => setIsPopupOpen(false);
 
-  // ✅ Dynamic menu from API categories
+  //   Dynamic menu from API categories
   const menu = (
     <Menu
       className="select-options"
@@ -191,7 +191,7 @@ const HeaderCenter = ({ wishlistItem, cartSlice }: any) => {
                       >
                         <div className="inner-select location-dark">
                           <div className="custom-select">
-                            {/* ✅ Show selected category name or loading state */}
+                            {/*   Show selected category name or loading state */}
                             {selectedItem ? selectedItem.name : "Category"}
                             <i
                               style={{ fontSize: "30px" }}

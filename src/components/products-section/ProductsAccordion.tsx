@@ -1,4 +1,5 @@
 "use client";
+
 import ProductItemCard from "@/components/item/ProductItemCard";
 import { RootState } from "@/store";
 import {
@@ -24,7 +25,10 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
 
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
+
   const urlCategory = searchParams.get("category");
+  const keyword = searchParams.get("keyword");
+  const categoryId = searchParams.get("category_id");
 
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,12 +122,20 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
       setLoading(true);
       setError(null);
       try {
-        //  Priority: forcedCategory > urlCategory > selectedCategory
-        const activeCat =
-          forcedCategory || urlCategory || selectedCategory[0] || null;
-        const url = activeCat
-          ? `${API_BASE}/products/category/${activeCat}`
-          : `${API_BASE}/all-products`;
+        let url = `${API_BASE}/all-products`;
+
+        if (keyword || categoryId) {
+          const params = new URLSearchParams();
+          if (keyword) params.append("keyword", keyword);
+          if (categoryId) params.append("category_id", categoryId);
+          url = `${API_BASE}/products/search?${params.toString()}`;
+        } else {
+          const activeCat =
+            forcedCategory || urlCategory || selectedCategory[0] || null;
+          if (activeCat) {
+            url = `${API_BASE}/products/category/${activeCat}`;
+          }
+        }
 
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch products");
@@ -162,7 +174,14 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
     };
 
     fetchProducts();
-  }, [forcedCategory, selectedCategory, urlCategory, API_BASE, dispatch]);
+  }, [
+    forcedCategory,
+    selectedCategory,
+    urlCategory,
+    keyword,
+    categoryId,
+    API_BASE,
+  ]);
 
   // ── Client-side filter: search + brand + price ──
   const filteredProducts = useMemo(() => {
@@ -204,7 +223,6 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
         {/* ── Search Bar ── */}
         <Row className="mb-4">
           <Col xs={12}>
-            {/* Active filter summary */}
             {(searchQuery ||
               selectedBrand.length > 0 ||
               minPrice > 0 ||

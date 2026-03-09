@@ -84,8 +84,11 @@ const Checkout = () => {
     }, 0);
 
     setSubTotal(subtotal);
-    setVat(subtotal * 0.2);
-  }, [cartSlice]);
+
+    // delivery charge
+    const deliveryCharge = selectedMethod === "free" ? 60 : 120;
+    setVat(deliveryCharge);
+  }, [cartSlice, selectedMethod]);
 
   const discountAmount = subTotal * (discount / 100);
   const total = subTotal + vat - discountAmount;
