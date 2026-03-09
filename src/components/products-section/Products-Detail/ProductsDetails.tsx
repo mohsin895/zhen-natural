@@ -6,6 +6,7 @@ import {
   showSuccessToast,
 } from "@/components/toast-popup/Toastify";
 import { addItem } from "@/store/reducer/cartSlice";
+import { getCartImageUrl } from "@/utility/imageHelper";
 import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import { useDispatch } from "react-redux";
@@ -34,24 +35,24 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
         ? product.discount
         : Math.round((product.discount / product.unit_price) * 100)
       : 0;
+  const basePath = process.env.NEXT_PUBLIC_PATH || "";
 
-  //   Safe image URL construction
-  const getImageUrl = () => {
-    if (!product) return "/placeholder.png";
+  // const getImageUrl = (image: any): string => {
+  //   if (!image) return " ";
 
-    // Try product.image first (full URL from API)
-    if (product.image) return product.image;
+  //   // যদি image string হয় এবং HTTP path না হয়
+  //   if (typeof image === "string") {
+  //     if (image.startsWith("http")) return image;
+  //     return `${basePath}/${image}`; // ← full URL
+  //   }
 
-    // Try product.thumbnail
-    if (product.thumbnail?.file_name) {
-      return `${process.env.NEXT_PUBLIC_PATH}/${product.thumbnail.file_name}`;
-    }
+  //   if (image?.file_name) return `${basePath}/${image.file_name}`;
+  //   if (image?.upload_path) return `${basePath}/${image.upload_path}`;
 
-    // Fallback
-    return "/placeholder.png";
-  };
+  //   return " ";
+  // };
 
-  const imageUrl = getImageUrl();
+  // const imageUrl = getImageUrl(product.image);
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () =>
@@ -76,8 +77,8 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
             slug: product.slug,
             newPrice: discountedPrice,
             weight: "",
-            image: imageUrl,
-            imageTwo: imageUrl,
+            image: getCartImageUrl(product.image),
+            imageTwo: getCartImageUrl(product.image),
             date: new Date().toISOString(),
             status: product.current_stock > 0 ? "In Stock" : "Out Of Stock",
             rating: 0,
@@ -112,9 +113,9 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
           <SingleProductSlider
             product={{
               ...product,
-              image: imageUrl,
+              image: getCartImageUrl(product.image),
               thumbnail: {
-                file_name: imageUrl,
+                file_name: getCartImageUrl(product.image),
               },
             }}
           />

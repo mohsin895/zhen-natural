@@ -74,7 +74,7 @@ const ShopCategorySlider = ({ onSuccess = () => {}, onError = () => {} }) => {
                           src={`${process.env.NEXT_PUBLIC_PATH}/${each.image}`}
                           alt={each.name}
                           onError={(e: any) => {
-                            e.currentTarget.src = "/placeholder.png";
+                            e.currentTarget.src = " ";
                           }}
                         />
                       </div>

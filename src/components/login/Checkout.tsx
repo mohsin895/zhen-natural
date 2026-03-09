@@ -399,7 +399,7 @@ const Checkout = () => {
                               }
                               alt={data.title}
                               onError={(e: any) => {
-                                e.currentTarget.src = "/placeholder.png";
+                                e.currentTarget.src = " ";
                               }}
                             />
                           </div>

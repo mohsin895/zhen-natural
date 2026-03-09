@@ -2,6 +2,7 @@
 import { deleteCartItemApi } from "@/api/cart";
 import { RootState } from "@/store";
 import { removeItem } from "@/store/reducer/cartSlice";
+import { getCartImageUrl } from "@/utility/imageHelper";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
@@ -98,11 +99,7 @@ const SidebarCart = ({
                           className="bb-cart-pro-img"
                         >
                           <img
-                            src={
-                              typeof data.image === "string"
-                                ? data.image
-                                : data?.image?.file_name
-                            }
+                            src={getCartImageUrl(data.image)}
                             alt={data.title}
                           />
                         </a>

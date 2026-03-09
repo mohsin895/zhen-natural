@@ -16,42 +16,42 @@ import { Swiper, SwiperSlide } from "swiper/react";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const ExploreCategory = ({ onSuccess = () => {}, onError = () => {} }) => {
-    const API_URL = `${process.env.NEXT_PUBLIC_DOMAIN}/filter/categories`;
-    const dispatch = useDispatch();
-    const router = useRouter();
+  const API_URL = `${process.env.NEXT_PUBLIC_DOMAIN}/filter/categories`;
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-    const { data, error, isLoading } = useSWR(API_URL, fetcher, {
-        onSuccess,
-        onError,
-    });
+  const { data, error, isLoading } = useSWR(API_URL, fetcher, {
+    onSuccess,
+    onError,
+  });
 
-    useEffect(() => {
-        if (typeof window !== "undefined") {
-            AOS.init({ once: true });
-        }
-    }, []);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      AOS.init({ once: true });
+    }
+  }, []);
 
-    const handleCategoryClick = (categorySlug: string) => {
-        dispatch(setSelectedCategory([categorySlug]));
-        router.push(`/shop-left-sidebar-col-3?category=${categorySlug}`);
-    };
+  const handleCategoryClick = (categorySlug: string) => {
+    dispatch(setSelectedCategory([categorySlug]));
+    router.push(`/shop-left-sidebar-col-3?category=${categorySlug}`);
+  };
 
-    const settings = {
-        spaceBetween: 24,
-        breakpoints: {
-            0: { slidesPerView: 2 },
-            421: { slidesPerView: 3 },
-            768: { slidesPerView: 4 },
-            1200: { slidesPerView: 6 },
-        },
-    };
+  const settings = {
+    spaceBetween: 24,
+    breakpoints: {
+      0: { slidesPerView: 2 },
+      421: { slidesPerView: 3 },
+      768: { slidesPerView: 4 },
+      1200: { slidesPerView: 6 },
+    },
+  };
 
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div>Failed to load categories</div>;
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Failed to load categories</div>;
 
-    return (
-        <>
-            <style>{`
+  return (
+    <>
+      <style>{`
         .bb-category-circle {
           display: flex;
           flex-direction: column;
@@ -120,57 +120,57 @@ const ExploreCategory = ({ onSuccess = () => {}, onError = () => {} }) => {
         }
       `}</style>
 
-            <section className="section-category padding-tb-50">
-                <div className="container">
-                    <Row>
-                        <Col lg={12}>
-                            <div className="bb-category-contact">
-                                <div className="category-title">
-                                    <h2
-                                        style={{
-                                            background:
-                                                "linear-gradient(to right, #0ed7ff 8%, #82bc23 14%)",
-                                            WebkitBackgroundClip: "text",
-                                            WebkitTextFillColor: "transparent",
-                                            fontSize: "48px",
-                                        }}
-                                    >
-                                        Explore Categories
-                                    </h2>
-                                </div>
-
-                                <Swiper {...settings} className="bb-category-block">
-                                    {Array.isArray(data?.data) &&
-                                        data.data.map((item: any, index: number) => (
-                                            <SwiperSlide key={index}>
-                                                <div
-                                                    className="bb-category-circle"
-                                                    data-aos="zoom-in"
-                                                    data-aos-delay={index * 50}
-                                                    onClick={() => handleCategoryClick(item.slug)}
-                                                >
-                                                    <div className="circle-image-wrapper">
-                                                        <img
-                                                            src={item.icon}
-                                                            alt={item.name}
-                                                            onError={(e: any) => {
-                                                                e.currentTarget.onerror = null;
-                                                                e.currentTarget.src = "/placeholder.png";
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    <span className="circle-label">{item.name}</span>
-                                                </div>
-                                            </SwiperSlide>
-                                        ))}
-                                </Swiper>
-                            </div>
-                        </Col>
-                    </Row>
+      <section className="section-category padding-tb-50">
+        <div className="container">
+          <Row>
+            <Col lg={12}>
+              <div className="bb-category-contact">
+                <div className="category-title">
+                  <h2
+                    style={{
+                      background:
+                        "linear-gradient(to right, #0ed7ff 8%, #82bc23 14%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      fontSize: "48px",
+                    }}
+                  >
+                    Explore Categories
+                  </h2>
                 </div>
-            </section>
-        </>
-    );
+
+                <Swiper {...settings} className="bb-category-block">
+                  {Array.isArray(data?.data) &&
+                    data.data.map((item: any, index: number) => (
+                      <SwiperSlide key={index}>
+                        <div
+                          className="bb-category-circle"
+                          data-aos="zoom-in"
+                          data-aos-delay={index * 50}
+                          onClick={() => handleCategoryClick(item.slug)}
+                        >
+                          <div className="circle-image-wrapper">
+                            <img
+                              src={item.icon}
+                              alt={item.name}
+                              onError={(e: any) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = " ";
+                              }}
+                            />
+                          </div>
+                          <span className="circle-label">{item.name}</span>
+                        </div>
+                      </SwiperSlide>
+                    ))}
+                </Swiper>
+              </div>
+            </Col>
+          </Row>
+        </div>
+      </section>
+    </>
+  );
 };
 
 export default ExploreCategory;

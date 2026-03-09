@@ -2,6 +2,7 @@
 import { addToCartApi } from "@/api/cart";
 import { RootState } from "@/store";
 import { addItem } from "@/store/reducer/cartSlice";
+import { getCartImageUrl } from "@/utility/imageHelper";
 import { useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import Modal from "react-bootstrap/Modal";
@@ -42,6 +43,8 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
+  console.log("ItemModal data.image:", data.image);
+  console.log("typeof data.image:", typeof data.image);
 
   //    Safe price parsing
   const parsePrice = (price: any): number => {
@@ -49,6 +52,7 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
     const parsed = parseFloat(String(price).replace(/[^0-9.]/g, ""));
     return isNaN(parsed) ? 0 : parsed;
   };
+  const imageUrl = getCartImageUrl(data?.image || "/placeholder.png");
 
   const discountedPrice = parsePrice(data.newPrice);
   const oldPrice = parsePrice(data.oldPrice);
@@ -129,8 +133,12 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
           <Col xs={12} sm={12} md={5} className="mb-24">
             <div className="quickview-pro-img">
               <img
-                src={data.image || "/placeholder.png"}
+                src={getCartImageUrl(data.image)}
                 alt={data.title}
+                onError={(e) => {
+                  console.log("Image failed to load:", imageUrl);
+                  (e.target as HTMLImageElement).src = "/placeholder.png";
+                }}
                 style={{
                   width: "100%",
                   height: "auto",

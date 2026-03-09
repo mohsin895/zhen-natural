@@ -91,7 +91,7 @@ const OrderPage = () => {
 
   //  Product image বের করো
   const getImage = (item: OrderItem): string => {
-    return item.thumbnail_image || item.image || "/placeholder.png";
+    return item.thumbnail_image || item.image || " ";
   };
 
   if (loading) {
@@ -241,7 +241,7 @@ const OrderPage = () => {
                                 borderRadius: "6px",
                               }}
                               onError={(e: any) => {
-                                e.currentTarget.src = "/placeholder.png";
+                                e.currentTarget.src = " ";
                               }}
                             />
                           </td>

@@ -1,44 +1,51 @@
-"use client"
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+"use client";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || "https://localhost/zhennatural/api/v2"
-const PATH   = process.env.NEXT_PUBLIC_PATH   || "https://localhost/zhennatural/public"
+const DOMAIN =
+  process.env.NEXT_PUBLIC_DOMAIN || "https://localhost/zhennatural/api/v2";
+const PATH =
+  process.env.NEXT_PUBLIC_PATH || "https://localhost/zhennatural/public";
 
 /* ────────────────────────── TYPES ─────────────────────────────── */
 interface BlogThumbnail {
-    file_name: string
+  file_name: string;
 }
 
 interface Blog {
-    id: number
-    slug: string
-    title: string
-    short_description?: string
-    description?: string
-    created_at?: string
-    category_id?: number
-    thumbnail?: BlogThumbnail
-    banner?: string
-    _catName?: string
+  id: number;
+  slug: string;
+  title: string;
+  short_description?: string;
+  description?: string;
+  created_at?: string;
+  category_id?: number;
+  thumbnail?: BlogThumbnail;
+  banner?: string;
+  _catName?: string;
 }
 
 interface Category {
-    id: number
-    slug: string
-    category_name: string
-    blogs?: Blog[]
+  id: number;
+  slug: string;
+  category_name: string;
+  blogs?: Blog[];
 }
 
 /* ────────────────────────── HELPERS ────────────────────────────── */
 const getBannerUrl = (blog: Blog): string => {
-    if (blog.thumbnail?.file_name) return `${PATH}/${blog.thumbnail.file_name}`
-    if (blog.banner && typeof blog.banner === 'string' && blog.banner.startsWith('http')) return blog.banner
-    return `https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&q=80`
-}
+  if (blog.thumbnail?.file_name) return `${PATH}/${blog.thumbnail.file_name}`;
+  if (
+    blog.banner &&
+    typeof blog.banner === "string" &&
+    blog.banner.startsWith("http")
+  )
+    return blog.banner;
+  return `https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&q=80`;
+};
 
 /* ────────────────────────── STYLES ─────────────────────────────── */
 const Styles = () => (
-    <style>{`
+  <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -198,214 +205,309 @@ const Styles = () => (
       .sidebar { width:100%; position:static }
     }
   `}</style>
-)
+);
 
 /* ────────────────────────── SKELETON ───────────────────────────── */
 const SkeletonCard = () => (
-    <div className="card" style={{pointerEvents:'none'}}>
-        <div className="skel" style={{height:210}} />
-        <div className="cb2">
-            <div className="skel" style={{height:12,width:'40%',marginBottom:10}} />
-            <div className="skel" style={{height:16,width:'90%',marginBottom:6}} />
-            <div className="skel" style={{height:16,width:'72%',marginBottom:16}} />
-            <div className="skel" style={{height:12,width:'80%',marginBottom:6}} />
-            <div className="skel" style={{height:12,width:'60%',marginBottom:18}} />
-            <div className="skel" style={{height:34,width:110}} />
-        </div>
+  <div className="card" style={{ pointerEvents: "none" }}>
+    <div className="skel" style={{ height: 210 }} />
+    <div className="cb2">
+      <div
+        className="skel"
+        style={{ height: 12, width: "40%", marginBottom: 10 }}
+      />
+      <div
+        className="skel"
+        style={{ height: 16, width: "90%", marginBottom: 6 }}
+      />
+      <div
+        className="skel"
+        style={{ height: 16, width: "72%", marginBottom: 16 }}
+      />
+      <div
+        className="skel"
+        style={{ height: 12, width: "80%", marginBottom: 6 }}
+      />
+      <div
+        className="skel"
+        style={{ height: 12, width: "60%", marginBottom: 18 }}
+      />
+      <div className="skel" style={{ height: 34, width: 110 }} />
     </div>
-)
+  </div>
+);
 
 /* ────────────────────────── BLOG CARD ──────────────────────────── */
-const BlogCard = ({ blog, catName, index }: { blog: Blog; catName: string; index: number }) => (
-    <div className="card fade-up" style={{animationDelay:`${index*0.07}s`}}>
-        <div className="ci">
-            <img
-                src={getBannerUrl(blog)}
-                alt={blog.title}
-                onError={e => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&q=80' }}
-            />
-        </div>
-        <div className="cb2">
-            {catName && <span className="chip">{catName}</span>}
-            <h3 className="ct">{blog.title}</h3>
-            {blog.short_description && <p className="cd">{blog.short_description}</p>}
-            <a href={`/blog/${blog.slug}`} className="rb">
-                Read More
-                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                    <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-            </a>
-        </div>
+const BlogCard = ({
+  blog,
+  catName,
+  index,
+}: {
+  blog: Blog;
+  catName: string;
+  index: number;
+}) => (
+  <div className="card fade-up" style={{ animationDelay: `${index * 0.07}s` }}>
+    <div className="ci">
+      <img
+        src={getBannerUrl(blog)}
+        alt={blog.title}
+        onError={(e) => {
+          (e.target as HTMLImageElement).src =
+            "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=400&q=80";
+        }}
+      />
     </div>
-)
+    <div className="cb2">
+      {catName && <span className="chip">{catName}</span>}
+      <h3 className="ct">{blog.title}</h3>
+      {blog.short_description && <p className="cd">{blog.short_description}</p>}
+      <a href={`/blog/${blog.slug}`} className="rb">
+        Read More
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+          <path
+            d="M2 6h8M6 2l4 4-4 4"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </a>
+    </div>
+  </div>
+);
 
 /* ────────────────────────── PAGE ───────────────────────────────── */
 export default function BlogPage() {
-    const [allBlogs, setAllBlogs]           = useState<Blog[]>([])
-    const [categories, setCategories]       = useState<Category[]>([])
-    const [loadingBlogs, setLoadingBlogs]   = useState(true)
-    const [loadingCats, setLoadingCats]     = useState(true)
-    const [blogsError, setBlogsError]       = useState<string | null>(null)
-    const [activeCatSlug, setActiveCatSlug] = useState<string | null>(null)
-    const [search, setSearch]               = useState('')
-    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [allBlogs, setAllBlogs] = useState<Blog[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingBlogs, setLoadingBlogs] = useState(true);
+  const [loadingCats, setLoadingCats] = useState(true);
+  const [blogsError, setBlogsError] = useState<string | null>(null);
+  const [activeCatSlug, setActiveCatSlug] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    /* ── fetch blogs wrapped in useCallback ── */
-    const fetchBlogs = useCallback((catSlug: string | null = null, q: string = '') => {
-        setLoadingBlogs(true)
-        setBlogsError(null)
-        const params = new URLSearchParams()
-        if (catSlug) params.append('selected_categories[]', catSlug)
-        if (q)       params.append('search', q)
+  /* ── fetch blogs wrapped in useCallback ── */
+  const fetchBlogs = useCallback(
+    (catSlug: string | null = null, q: string = "") => {
+      setLoadingBlogs(true);
+      setBlogsError(null);
+      const params = new URLSearchParams();
+      if (catSlug) params.append("selected_categories[]", catSlug);
+      if (q) params.append("search", q);
 
-        fetch(`${DOMAIN}/blog-list?${params}`)
-            .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
-            .then(json => {
-                if (!json.result) throw new Error('API returned result:false')
-                setAllBlogs(json.blogs?.data || [])
-            })
-            .catch((e: Error) => setBlogsError(e.message))
-            .finally(() => setLoadingBlogs(false))
-    }, [])
+      fetch(`${DOMAIN}/blog-list?${params}`)
+        .then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        })
+        .then((json) => {
+          if (!json.result) throw new Error("API returned result:false");
+          setAllBlogs(json.blogs?.data || []);
+        })
+        .catch((e: Error) => setBlogsError(e.message))
+        .finally(() => setLoadingBlogs(false));
+    },
+    [],
+  );
 
-    /* ── fetch categories ── */
-    useEffect(() => {
-        fetch(`${DOMAIN}/blog-category`)
-            .then(r => r.json())
-            .then(json => { if (json.success) setCategories(json.data || []) })
-            .catch(() => {})
-            .finally(() => setLoadingCats(false))
-    }, [])
+  /* ── fetch categories ── */
+  useEffect(() => {
+    fetch(`${DOMAIN}/blog-category`)
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success) setCategories(json.data || []);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingCats(false));
+  }, []);
 
-    /* ── initial blog load ── */
-    useEffect(() => {
-        fetchBlogs()
-    }, [fetchBlogs])
+  /* ── initial blog load ── */
+  useEffect(() => {
+    fetchBlogs();
+  }, [fetchBlogs]);
 
-    /* ── displayed blogs with category name injected ── */
-    const displayedBlogs: Blog[] = (() => {
-        if (activeCatSlug) {
-            const cat = categories.find(c => c.slug === activeCatSlug)
-            const source = (cat?.blogs?.length ? cat.blogs : allBlogs)
-            return source.map(b => ({ ...b, _catName: cat?.category_name || '' }))
-        }
-        const catMap: Record<number, string> = Object.fromEntries(categories.map(c => [c.id, c.category_name]))
-        return allBlogs.map(b => ({ ...b, _catName: b.category_id ? (catMap[b.category_id] || '') : '' }))
-    })()
-
-    const handleCatClick = (slug: string) => {
-        const next = activeCatSlug === slug ? null : slug
-        setActiveCatSlug(next)
-        fetchBlogs(next, search)
+  /* ── displayed blogs with category name injected ── */
+  const displayedBlogs: Blog[] = (() => {
+    if (activeCatSlug) {
+      const cat = categories.find((c) => c.slug === activeCatSlug);
+      const source = cat?.blogs?.length ? cat.blogs : allBlogs;
+      return source.map((b) => ({ ...b, _catName: cat?.category_name || "" }));
     }
+    const catMap: Record<number, string> = Object.fromEntries(
+      categories.map((c) => [c.id, c.category_name]),
+    );
+    return allBlogs.map((b) => ({
+      ...b,
+      _catName: b.category_id ? catMap[b.category_id] || "" : "",
+    }));
+  })();
 
-    const handleSearch = (val: string) => {
-        setSearch(val)
-        if (debounceRef.current) clearTimeout(debounceRef.current)
-        debounceRef.current = setTimeout(() => fetchBlogs(activeCatSlug, val), 420)
-    }
+  const handleCatClick = (slug: string) => {
+    const next = activeCatSlug === slug ? null : slug;
+    setActiveCatSlug(next);
+    fetchBlogs(next, search);
+  };
 
-    const activeCat = categories.find(c => c.slug === activeCatSlug)
-    const isLoading = loadingBlogs
+  const handleSearch = (val: string) => {
+    setSearch(val);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchBlogs(activeCatSlug, val), 420);
+  };
 
-    return (
-        <>
-            <Styles />
+  const activeCat = categories.find((c) => c.slug === activeCatSlug);
+  const isLoading = loadingBlogs;
 
-            <header className="hero">
-                <h1>Blog</h1>
-            </header>
+  return (
+    <>
+      <Styles />
 
-            <div className="layout">
+      <header className="hero">
+        <h1>Blog</h1>
+      </header>
 
-                {/* ── SIDEBAR ── */}
-                <aside className="sidebar">
-
-                    {/* Search */}
-                    <div className="s-card">
-                        <div className="sw">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                                <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-                                <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                            </svg>
-                            <input
-                                className="si"
-                                type="text"
-                                placeholder="Search articles…"
-                                value={search}
-                                onChange={e => handleSearch(e.target.value)}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Categories */}
-                    <div className="s-card">
-                        <h3>Categories</h3>
-
-                        <button
-                            className={`cb${!activeCatSlug ? ' act' : ''}`}
-                            onClick={() => { setActiveCatSlug(null); fetchBlogs(null, search) }}
-                        >
-                            All Posts
-                            <span className="cnt">{allBlogs.length || '—'}</span>
-                        </button>
-
-                        {loadingCats
-                            ? [1,2,3].map(i => <div key={i} className="skel" style={{height:34,marginBottom:4}} />)
-                            : categories.map(cat => (
-                                <button
-                                    key={cat.id}
-                                    className={`cb${activeCatSlug === cat.slug ? ' act' : ''}`}
-                                    onClick={() => handleCatClick(cat.slug)}
-                                >
-                                    <span style={{flex:1}}>{cat.category_name}</span>
-                                    <span className="cnt">{cat.blogs?.length ?? 0}</span>
-                                </button>
-                            ))
-                        }
-                    </div>
-                </aside>
-
-                {/* ── MAIN GRID ── */}
-                <div style={{flex:1}}>
-
-                    {activeCat && (
-                        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:18}}>
-                            <span style={{fontFamily:"'Playfair Display',serif",fontSize:'1.12rem',fontWeight:700,color:'var(--ink)'}}>
-                                {activeCat.category_name}
-                            </span>
-                            <button
-                                onClick={() => { setActiveCatSlug(null); fetchBlogs(null, search) }}
-                                style={{fontSize:'.72rem',color:'var(--muted)',background:'var(--border)',border:'none',borderRadius:999,padding:'3px 10px',cursor:'pointer'}}
-                            >
-                                ✕ Clear
-                            </button>
-                        </div>
-                    )}
-
-                    <div className="grid">
-                        {isLoading
-                            ? Array.from({length:6}).map((_,i) => <SkeletonCard key={i} />)
-                            : blogsError
-                                ? <div className="err">⚠️ Could not load articles: {blogsError}</div>
-                                : displayedBlogs.length === 0
-                                    ? <div className="empty">
-                                        No articles found{search ? ` for "${search}"` : ''}.
-                                    </div>
-                                    : displayedBlogs.map((blog, i) => (
-                                        <BlogCard key={blog.id} blog={blog} catName={blog._catName || ''} index={i} />
-                                    ))
-                        }
-                    </div>
-
-                    {!isLoading && !blogsError && displayedBlogs.length > 0 && (
-                        <p className="footer">
-                            Showing {displayedBlogs.length} article{displayedBlogs.length !== 1 ? 's' : ''}
-                            {activeCat ? ` in "${activeCat.category_name}"` : ''}
-                        </p>
-                    )}
-                </div>
+      <div className="layout">
+        {/* ── SIDEBAR ── */}
+        <aside className="sidebar">
+          {/* Search */}
+          <div className="s-card">
+            <div className="sw">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="8"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+                <path
+                  d="M21 21l-4.35-4.35"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <input
+                className="si"
+                type="text"
+                placeholder="Search articles…"
+                value={search}
+                onChange={(e) => handleSearch(e.target.value)}
+              />
             </div>
-        </>
-    )
+          </div>
+
+          {/* Categories */}
+          <div className="s-card">
+            <h3>Categories</h3>
+
+            <button
+              className={`cb${!activeCatSlug ? " act" : ""}`}
+              onClick={() => {
+                setActiveCatSlug(null);
+                fetchBlogs(null, search);
+              }}
+            >
+              All Posts
+              <span className="cnt">{allBlogs.length || "—"}</span>
+            </button>
+
+            {loadingCats
+              ? [1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="skel"
+                    style={{ height: 34, marginBottom: 4 }}
+                  />
+                ))
+              : categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    className={`cb${activeCatSlug === cat.slug ? " act" : ""}`}
+                    onClick={() => handleCatClick(cat.slug)}
+                  >
+                    <span style={{ flex: 1 }}>{cat.category_name}</span>
+                    <span className="cnt">{cat.blogs?.length ?? 0}</span>
+                  </button>
+                ))}
+          </div>
+        </aside>
+
+        {/* ── MAIN GRID ── */}
+        <div style={{ flex: 1 }}>
+          {activeCat && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginBottom: 18,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "'Playfair Display',serif",
+                  fontSize: "1.12rem",
+                  fontWeight: 700,
+                  color: "var(--ink)",
+                }}
+              >
+                {activeCat.category_name}
+              </span>
+              <button
+                onClick={() => {
+                  setActiveCatSlug(null);
+                  fetchBlogs(null, search);
+                }}
+                style={{
+                  fontSize: ".72rem",
+                  color: "var(--muted)",
+                  background: "var(--border)",
+                  border: "none",
+                  borderRadius: 999,
+                  padding: "3px 10px",
+                  cursor: "pointer",
+                }}
+              >
+                ✕ Clear
+              </button>
+            </div>
+          )}
+
+          <div className="grid">
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+            ) : blogsError ? (
+              <div className="err">
+                ⚠️ Could not load articles: {blogsError}
+              </div>
+            ) : displayedBlogs.length === 0 ? (
+              <div className="empty">
+                No articles found{search ? ` for "${search}"` : ""}.
+              </div>
+            ) : (
+              displayedBlogs.map((blog, i) => (
+                <BlogCard
+                  key={blog.id}
+                  blog={blog}
+                  catName={blog._catName || ""}
+                  index={i}
+                />
+              ))
+            )}
+          </div>
+
+          {!isLoading && !blogsError && displayedBlogs.length > 0 && (
+            <p className="footer">
+              Showing {displayedBlogs.length} article
+              {displayedBlogs.length !== 1 ? "s" : ""}
+              {activeCat ? ` in "${activeCat.category_name}"` : ""}
+            </p>
+          )}
+        </div>
+      </div>
+    </>
+  );
 }

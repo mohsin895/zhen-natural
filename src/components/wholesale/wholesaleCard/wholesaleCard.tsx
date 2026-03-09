@@ -37,7 +37,7 @@ const WholesaleCard: React.FC<WholesaleCardProps> = ({
             className="ws-card__img"
             onError={(e) => {
               (e.target as HTMLImageElement).src =
-                "https://zhennatural.zhenaura.net/public/assets/img/placeholder.jpg";
+                "https://admin.zhennatural.com/public/assets/img/placeholder.jpg";
             }}
           />
         </div>

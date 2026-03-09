@@ -34,6 +34,8 @@ interface Item {
 }
 
 const ProductItemCard = ({ data }: any) => {
+  console.log("ProductItemCard data:", data);
+  console.log("ProductItemCard data.image:", data.image);
   const dispatch = useDispatch();
   const cartSlice = useSelector((state: RootState) => state.cart?.items);
   const wishlistItem = useSelector(
@@ -243,7 +245,10 @@ const ProductItemCard = ({ data }: any) => {
         </div>
       </div>
       <ItemModal
-        data={data}
+        data={{
+          ...data,
+          image: data.image || "/placeholder.png",
+        }}
         isModalOpen={isModalOpen}
         closeItemModal={closeItemModal}
       />

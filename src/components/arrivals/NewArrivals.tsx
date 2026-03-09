@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { Fade } from "react-awesome-reveal";
 import { Row } from "react-bootstrap";
-import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
-import "react-tabs/style/react-tabs.css"; // ✅ Import styles
+import { TabPanel, Tabs } from "react-tabs";
+import "react-tabs/style/react-tabs.css";
 import ProductItemCard from "../item/ProductItemCard";
 
 const API_URL = `${process.env.NEXT_PUBLIC_DOMAIN}/all-products`;
@@ -94,7 +94,7 @@ const NewArrivals = () => {
   return (
     <section className="section-product-tabs padding-tb-50">
       <div className="container">
-        {/* ✅ Section Title */}
+        {/*  Section Title */}
         <Row className="mb-4">
           <div className="col-12">
             <Fade triggerOnce direction="up" duration={1000} delay={200}>
@@ -110,31 +110,11 @@ const NewArrivals = () => {
           </div>
         </Row>
 
-        {/* ✅ Tabs with TabList */}
+        {/*   Tabs with TabList */}
         <Tabs selectedIndex={selectedIndex} onSelect={setSelectedIndex}>
-          {/* ✅ Tab Headers */}
-          <TabList className="bb-pro-tab mb-4">
-            <ul className="bb-pro-tab-nav nav">
-              <li className="nav-item">
-                <Tab
-                  className={`nav-link ${selectedIndex === 0 ? "active" : ""}`}
-                >
-                  All
-                </Tab>
-              </li>
-              {Categories.map((category, idx) => (
-                <li className="nav-item" key={idx}>
-                  <Tab
-                    className={`nav-link ${selectedIndex === idx + 1 ? "active" : ""}`}
-                  >
-                    {category.groupname}
-                  </Tab>
-                </li>
-              ))}
-            </ul>
-          </TabList>
+          {/*   Tab Headers */}
 
-          {/* ✅ All Products Tab */}
+          {/*   All Products Tab */}
           <TabPanel>
             <Row className="mb-minus-24">
               {filterByAll().map((item: any, idx: number) => (
@@ -150,7 +130,7 @@ const NewArrivals = () => {
             </Row>
           </TabPanel>
 
-          {/* ✅ Category Tabs */}
+          {/*   Category Tabs */}
           {Categories.map((category, idx) => (
             <TabPanel key={idx}>
               <Row className="mb-minus-24">
