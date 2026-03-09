@@ -1,6 +1,5 @@
 "use client";
 import { RootState } from "@/store";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -84,10 +83,6 @@ const Footer: React.FC<FooterProps> = ({
       : data.data.slice(0, 6)
     : [];
 
-  const toggleDropdown = (dropdown: string) => {
-    setDropdownState((current) => (current === dropdown ? null : dropdown));
-  };
-
   const footerStyles = `
     .bb-footer-widget {
       height: 100%;
@@ -97,120 +92,42 @@ const Footer: React.FC<FooterProps> = ({
       .bb-footer-widget {
         margin-bottom: 20px;
       }
+
       .bb-footer-heading {
         font-size: 15px;
-        padding: 12px 0;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         font-weight: 600;
+        margin-bottom: 10px;
       }
+
       .bb-footer-links,
       .bb-footer-dropdown {
-        width: 100%;
+        display: block !important;
+        height: auto !important;
+        opacity: 1 !important;
       }
+
       .bb-footer-links ul,
       .bb-footer-dropdown ul {
         list-style: none;
         padding-left: 0;
         margin: 0;
       }
+
       .bb-footer-links li,
       .bb-footer-dropdown li {
-        padding: 10px 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 6px 0;
         font-size: 13px;
       }
-      .bb-footer-links li:last-child,
-      .bb-footer-dropdown li:last-child {
-        border-bottom: none;
-      }
-      .bb-footer-links a,
-      .bb-footer-dropdown a {
-        color: #333;
-        text-decoration: none;
-        display: block;
-        padding: 5px 0;
-      }
+
       .bb-footer-detail {
         font-size: 13px;
         line-height: 1.6;
-        color: #666;
       }
-      .bb-footer-company {
-        padding-bottom: 20px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-      }
+
       .bb-footer-company img {
         max-width: 120px;
-        height: auto;
-        margin-bottom: 10px;
       }
-      .bb-footer-cont-social {
-        margin-top: 0;
-      }
-      .bb-footer-cont-social ul {
-        gap: 15px !important;
-        padding-top: 15px;
-      }
-      .bb-footer-cont-social ul li a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 38px;
-        height: 38px;
-        background-color: #42A590;
-        color: white;
-        border-radius: 50%;
-        font-size: 16px;
-        transition: background-color 0.3s;
-      }
-      .bb-footer-cont-social ul li a:hover {
-        background-color: #358b78;
-      }
-      .footer-bottom {
-        padding: 15px 0;
-      }
-      .footer-bottom h4 {
-        font-size: 13px;
-        margin: 0;
-        color: white;
-        line-height: 1.6;
-      }
-      .footer-bottom a {
-        color: white;
-        text-decoration: none;
-      }
-      .footer-bottom a:hover {
-        text-decoration: underline;
-      }
-      .text-center.py-3 {
-        padding: 15px 0 !important;
-      }
-      .text-center.py-3 img {
-        max-width: 400px !important;
-        height: auto;
-      }
-    }
 
-    @media (max-width: 768px) {
-      .bb-footer-heading {
-        font-size: 14px;
-        padding: 10px 0;
-      }
-      .bb-footer-detail {
-        font-size: 13px;
-      }
-      .bb-footer-links li,
-      .bb-footer-dropdown li {
-        padding: 8px 0;
-        font-size: 12px;
-      }
-      .footer-bottom h4 {
-        font-size: 12px;
-      }
       .text-center.py-3 img {
         max-width: 350px !important;
       }
@@ -218,32 +135,16 @@ const Footer: React.FC<FooterProps> = ({
 
     @media (max-width: 576px) {
       .bb-footer-heading {
-        font-size: 13px;
-        font-weight: 600;
+        font-size: 14px;
       }
-      .bb-footer-detail {
-        font-size: 12px;
-      }
+
       .bb-footer-links li,
       .bb-footer-dropdown li {
-        padding: 6px 0;
-        font-size: 11px;
+        font-size: 12px;
       }
-      .footer-bottom h4 {
-        font-size: 10px;
-      }
-      .text-center.py-3 {
-        padding: 10px 0 !important;
-      }
+
       .text-center.py-3 img {
         max-width: 280px !important;
-      }
-      .bb-footer-company {
-        padding-bottom: 15px;
-        margin-bottom: 15px;
-      }
-      .bb-footer-company img {
-        max-width: 100px;
       }
     }
   `;
@@ -263,8 +164,8 @@ const Footer: React.FC<FooterProps> = ({
           <div className="footer-top padding-tb-50">
             <div className="container">
               <Row className="m-minus-991">
-                {/* LOGO & ABOUT */}
-                <Col lg={3} md={6} sm={12} xs={12} className="bb-footer-cat">
+                {/* LOGO */}
+                <Col lg={3} md={6} sm={12} xs={12}>
                   <div className="bb-footer-widget bb-footer-company">
                     <img
                       src={"/assets/img/logo/logo.webp"}
@@ -282,20 +183,8 @@ const Footer: React.FC<FooterProps> = ({
                 {/* CATEGORY */}
                 <Col lg={2} md={6} sm={12} xs={12}>
                   <div className="bb-footer-widget">
-                    <h4
-                      onClick={() => toggleDropdown("category")}
-                      className="bb-footer-heading"
-                    >
-                      Category
-                    </h4>
-                    <motion.div
-                      className="bb-footer-links"
-                      initial={{ height: 0 }}
-                      animate={{
-                        height: dropdownState === "category" ? "auto" : 0,
-                      }}
-                      transition={{ duration: 0.3 }}
-                    >
+                    <h4 className="bb-footer-heading">Category</h4>
+                    <div className="bb-footer-links">
                       <ul>
                         {categories.map((item: Category) => (
                           <li key={item.id}>
@@ -305,27 +194,15 @@ const Footer: React.FC<FooterProps> = ({
                           </li>
                         ))}
                       </ul>
-                    </motion.div>
+                    </div>
                   </div>
                 </Col>
 
                 {/* COMPANY */}
                 <Col lg={2} md={6} sm={12} xs={12}>
                   <div className="bb-footer-widget">
-                    <h4
-                      onClick={() => toggleDropdown("company")}
-                      className="bb-footer-heading"
-                    >
-                      Company
-                    </h4>
-                    <motion.div
-                      className="bb-footer-links"
-                      initial={{ height: 0 }}
-                      animate={{
-                        height: dropdownState === "company" ? "auto" : 0,
-                      }}
-                      transition={{ duration: 0.3 }}
-                    >
+                    <h4 className="bb-footer-heading">Company</h4>
+                    <div className="bb-footer-links">
                       <ul>
                         <li>
                           <Link href="/about-us">About us</Link>
@@ -348,29 +225,15 @@ const Footer: React.FC<FooterProps> = ({
                           <Link href="/contact-us">Contact us</Link>
                         </li>
                       </ul>
-                    </motion.div>
+                    </div>
                   </div>
                 </Col>
 
                 {/* ACCOUNT */}
                 <Col lg={2} md={6} sm={12} xs={12}>
                   <div className="bb-footer-widget">
-                    <h4
-                      onClick={() => toggleDropdown("account")}
-                      className="bb-footer-heading"
-                    >
-                      Account
-                    </h4>
-                    <motion.div
-                      className="bb-footer-dropdown"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{
-                        height: dropdownState === "account" ? "auto" : 0,
-                        opacity: dropdownState === "account" ? 1 : 0,
-                      }}
-                      transition={{ duration: 0.3 }}
-                      style={{ overflow: "hidden" }}
-                    >
+                    <h4 className="bb-footer-heading">Account</h4>
+                    <div className="bb-footer-dropdown">
                       <ul>
                         <li>
                           <Link href="/login">Sign In</Link>
@@ -393,33 +256,15 @@ const Footer: React.FC<FooterProps> = ({
                           <Link href="/checkout">Payments</Link>
                         </li>
                       </ul>
-                    </motion.div>
+                    </div>
                   </div>
                 </Col>
 
                 {/* CONTACT */}
-                <Col
-                  lg={3}
-                  md={6}
-                  sm={12}
-                  xs={12}
-                  className="bb-footer-cont-social"
-                >
+                <Col lg={3} md={6} sm={12} xs={12}>
                   <div className="bb-footer-widget">
-                    <h4
-                      onClick={() => toggleDropdown("contact")}
-                      className="bb-footer-heading"
-                    >
-                      Contact
-                    </h4>
-                    <motion.div
-                      className="bb-footer-links"
-                      initial={{ height: 0 }}
-                      animate={{
-                        height: dropdownState === "contact" ? "auto" : 0,
-                      }}
-                      transition={{ duration: 0.3 }}
-                    >
+                    <h4 className="bb-footer-heading">Contact</h4>
+                    <div className="bb-footer-links">
                       <ul>
                         <li>{address}</li>
                         <li>
@@ -429,49 +274,33 @@ const Footer: React.FC<FooterProps> = ({
                           <Link href={`mailto:${email}`}>{email}</Link>
                         </li>
                       </ul>
-                    </motion.div>
+                    </div>
 
                     <ul className="mt-3 d-flex gap-3">
                       {facebook && (
                         <li>
-                          <a
-                            href={facebook}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <a href={facebook} target="_blank">
                             <i className="ri-facebook-fill"></i>
                           </a>
                         </li>
                       )}
                       {twitter && (
                         <li>
-                          <a
-                            href={twitter}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <a href={twitter} target="_blank">
                             <i className="ri-twitter-fill"></i>
                           </a>
                         </li>
                       )}
                       {instagram && (
                         <li>
-                          <a
-                            href={instagram}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <a href={instagram} target="_blank">
                             <i className="ri-instagram-line"></i>
                           </a>
                         </li>
                       )}
                       {linkedin && (
                         <li>
-                          <a
-                            href={linkedin}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                          <a href={linkedin} target="_blank">
                             <i className="ri-linkedin-fill"></i>
                           </a>
                         </li>
@@ -483,7 +312,7 @@ const Footer: React.FC<FooterProps> = ({
             </div>
           </div>
 
-          {/* SSL Commerz */}
+          {/* SSL */}
           <div className="text-center py-3">
             <img
               src="/assets/img/sslcommerz.png"
@@ -492,10 +321,10 @@ const Footer: React.FC<FooterProps> = ({
             />
           </div>
 
-          {/* Footer Bottom */}
+          {/* Bottom */}
           <div className="footer-bottom">
             <div className="container text-center">
-              <h4>
+              <h4 className="">
                 Copyright © {new Date().getFullYear()} Zhen Natural. All Rights
                 Reserved. Powered by{" "}
                 <a
