@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteRule ^$ nodejs/ [L]
+RewriteRule (.*) nodejs/$1 [L]
