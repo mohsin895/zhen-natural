@@ -122,11 +122,6 @@ const Brands: React.FC<BrandsProps> = ({
                             />
                           </a>
                         </div>
-                        {brand.name && (
-                          <div className="brand-name text-center mt-2">
-                            <p>{brand.name}</p>
-                          </div>
-                        )}
                       </div>
                     </Fade>
                   </SwiperSlide>

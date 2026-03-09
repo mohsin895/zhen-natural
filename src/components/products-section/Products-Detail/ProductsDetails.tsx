@@ -100,8 +100,7 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
     }
   };
 
-  const description =
-    (product as any).description || (product as any).short_description || null;
+  const description = (product as any).short_description || null;
 
   const isInStock = product.current_stock > 0;
 
@@ -132,7 +131,7 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
             {/* Description */}
             {description ? (
               <div
-                style={styles.description}
+                style={styles.short_description}
                 dangerouslySetInnerHTML={{ __html: description }}
               />
             ) : (

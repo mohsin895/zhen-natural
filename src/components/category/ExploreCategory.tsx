@@ -33,7 +33,7 @@ const ExploreCategory = ({ onSuccess = () => {}, onError = () => {} }) => {
 
   const handleCategoryClick = (categorySlug: string) => {
     dispatch(setSelectedCategory([categorySlug]));
-    router.push(`/shop-left-sidebar-col-3?category=${categorySlug}`);
+    router.push(`/category/${categorySlug}`);
   };
 
   const settings = {
@@ -151,11 +151,12 @@ const ExploreCategory = ({ onSuccess = () => {}, onError = () => {} }) => {
                         >
                           <div className="circle-image-wrapper">
                             <img
-                              src={item.icon}
+                              src={item.cover_image || item.banner}
                               alt={item.name}
                               onError={(e: any) => {
                                 e.currentTarget.onerror = null;
-                                e.currentTarget.src = " ";
+                                e.currentTarget.src =
+                                  "https://via.placeholder.com/100";
                               }}
                             />
                           </div>
