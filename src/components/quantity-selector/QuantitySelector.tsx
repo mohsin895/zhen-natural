@@ -8,6 +8,7 @@ interface QuantitySelectorProps {
   id: number;
   cart_id?: number;
   quantity: number;
+  max?: number;
   onQuantityChange?: (qty: number) => void;
 }
 

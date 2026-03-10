@@ -12,7 +12,7 @@ import { showErrorToast, showSuccessToast } from "../toast-popup/Toastify";
 interface Item {
   id: number;
   title: string;
-  newPrice: number | string;
+  newPrice: number;
   weight: string;
   slug: string;
   image: string;
@@ -20,7 +20,7 @@ interface Item {
   date: string;
   status: string;
   rating: number;
-  oldPrice: number | string;
+  oldPrice: number;
   location: string;
   brand: string;
   sku: number;

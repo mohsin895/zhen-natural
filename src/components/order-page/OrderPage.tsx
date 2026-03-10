@@ -3,12 +3,49 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
+interface OrderPageProps {
+  id: string | number;
+}
 
-const OrderPage = ({ id }) => {
+interface OrderItem {
+  product_id?: number;
+  product_name?: string;
+  price?: number | string;
+  quantity?: number;
+  tax?: number | string;
+  discount?: number | string;
+  thumbnail_image?: string;
+  image?: string;
+  photo?: string;
+}
+
+interface Order {
+  code?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  payment_method?: string;
+  shipping_method?: string;
+  payment_status?: string;
+  order_status?: string;
+  completion_status?: string;
+  delivery_status?: string;
+  txn_id?: string;
+  created_at?: string;
+  sub_total?: number | string;
+  shipping_charge?: number | string;
+  tax?: number | string;
+  discount?: number | string;
+  grand_total?: number | string;
+  order_details?: OrderItem[];
+}
+
+const OrderPage = ({ id }: OrderPageProps) => {
+  const [order, setOrder] = useState<Order | null>(null);
   const router = useRouter();
   const orderId = id;
 
-  const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -61,9 +98,12 @@ const OrderPage = ({ id }) => {
 
         setOrder(orderData);
         setLoading(false);
-      } catch (err) {
-        console.error(" Error:", err);
+      } catch (error) {
+        console.error(" Error:", error);
+
+        const err = error as Error;
         setError("Network error: " + err.message);
+
         setLoading(false);
       }
     };
@@ -78,7 +118,7 @@ const OrderPage = ({ id }) => {
   };
 
   // ── Get Image ──
-  const getImage = (item) => {
+  const getImage = (item: OrderItem) => {
     const img = item?.thumbnail_image || item?.image || item?.photo;
     if (!img) return "";
     if (String(img).startsWith("http")) return img;
@@ -88,7 +128,7 @@ const OrderPage = ({ id }) => {
   };
 
   // ── Price Parser ──
-  const parsePrice = (price) => {
+  const parsePrice = (price: number | string | null | undefined) => {
     if (price === null || price === undefined || price === "") return 0;
     const cleaned = String(price).replace(/[^\d.]/g, "");
     const num = Number(cleaned);
@@ -148,7 +188,8 @@ const OrderPage = ({ id }) => {
   const subtotal =
     parsePrice(order.sub_total) ||
     items.reduce(
-      (acc, item) => acc + parsePrice(item.price) * (item.quantity || 1),
+      (acc: number, item: OrderItem) =>
+        acc + parsePrice(item.price) * (item.quantity || 1),
       0,
     );
   const shippingCharge = parsePrice(order.shipping_charge) || 0;
@@ -531,7 +572,8 @@ const OrderPage = ({ id }) => {
             src="/assets/img/logo/logo.webp"
             alt="logo"
             onError={(e) => {
-              e.target.src = "/logo.png";
+              const target = e.target as HTMLImageElement;
+              target.src = "/logo.png";
             }}
           />
           <div className="order-code-center">{order.code}</div>
@@ -735,7 +777,7 @@ const OrderPage = ({ id }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((item, idx) => {
+                  {items.map((item: OrderItem, idx: number) => {
                     const itemPrice = parsePrice(item.price);
                     const itemTax = parsePrice(item.tax) || 0;
                     const itemDiscount = parsePrice(item.discount) || 0;
@@ -751,9 +793,6 @@ const OrderPage = ({ id }) => {
                             src={getImage(item)}
                             alt={item.product_name || "Product"}
                             className="product-img"
-                            onError={(e) => {
-                              e.target.src = "";
-                            }}
                           />
                         </td>
                         <td className="product-name-cell">

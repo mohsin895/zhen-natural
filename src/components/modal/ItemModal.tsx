@@ -145,7 +145,7 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
                 }}
               />
 
-              {/* ✅ Stock Status Badge */}
+              {/*     Stock Status Badge */}
               {isOutOfStock && (
                 <div
                   style={{
@@ -195,7 +195,7 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
                 {data.title}
               </h5>
 
-              {/* ✅ Product Description - নতুন যোগ হয়েছে */}
+              {/*     Product Description - নতুন যোগ হয়েছে */}
               {data.description && (
                 <p
                   style={{
