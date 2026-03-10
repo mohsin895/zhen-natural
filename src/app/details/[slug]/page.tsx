@@ -84,7 +84,7 @@ const ProductDetailsPage = () => {
         }
 
         const data = await response.json();
-        console.log("Product data:", data);
+        // console.log("Product data:", data);
         setProduct(data.data || data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load product");

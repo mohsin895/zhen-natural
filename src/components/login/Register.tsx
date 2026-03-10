@@ -272,7 +272,7 @@ const Register = () => {
       });
 
       const data = await res.json();
-      console.log("Register API response:", data);
+      // console.log("Register API response:", data);
 
       if (!res.ok) {
         const errorMsg =

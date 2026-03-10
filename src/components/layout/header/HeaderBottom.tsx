@@ -49,7 +49,7 @@ const HeaderBottom = () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/recipe`);
         const data = await res.json();
-        console.log(data);
+        // console.log(data);
         setRecipes(data?.data || []);
       } catch (error) {
         console.error("Recipe fetch error:", error);

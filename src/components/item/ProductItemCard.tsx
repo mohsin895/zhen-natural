@@ -12,7 +12,7 @@ import { showErrorToast, showSuccessToast } from "../toast-popup/Toastify";
 interface Item {
   id: number;
   title: string;
-  newPrice: number;
+  newPrice: number | string;
   weight: string;
   slug: string;
   image: string;
@@ -20,22 +20,23 @@ interface Item {
   date: string;
   status: string;
   rating: number;
-  oldPrice: number;
+  oldPrice: number | string;
   location: string;
   brand: string;
   sku: number;
   category: string;
   quantity: number;
+  description?: string;
+  current_stock?: number;
   has_discount?: boolean;
   discount?: number;
   discount_type?: string;
   sale?: string;
-  current_stock?: number;
 }
 
 const ProductItemCard = ({ data }: any) => {
-  console.log("ProductItemCard data:", data);
-  console.log("ProductItemCard data.image:", data.image);
+  // console.log("ProductItemCard data:", data);
+  // console.log("ProductItemCard data.image:", data.image);
   const dispatch = useDispatch();
   const cartSlice = useSelector((state: RootState) => state.cart?.items);
   const wishlistItem = useSelector(
@@ -247,7 +248,9 @@ const ProductItemCard = ({ data }: any) => {
       <ItemModal
         data={{
           ...data,
-          image: data.image || "/placeholder.png",
+          image: data.image || " ",
+          description: data.description,
+          current_stock: data.current_stock,
         }}
         isModalOpen={isModalOpen}
         closeItemModal={closeItemModal}

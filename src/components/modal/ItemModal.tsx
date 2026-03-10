@@ -20,7 +20,7 @@ interface Item {
   date: string;
   status: string;
   rating: number;
-  oldPrice: number;
+  oldPrice: number | string;
   location: string;
   brand: string;
   sku: number;
@@ -43,8 +43,6 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
-  console.log("ItemModal data.image:", data.image);
-  console.log("typeof data.image:", typeof data.image);
 
   //    Safe price parsing
   const parsePrice = (price: any): number => {
@@ -52,11 +50,12 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
     const parsed = parseFloat(String(price).replace(/[^0-9.]/g, ""));
     return isNaN(parsed) ? 0 : parsed;
   };
-  const imageUrl = getCartImageUrl(data?.image || "/placeholder.png");
 
   const discountedPrice = parsePrice(data.newPrice);
   const oldPrice = parsePrice(data.oldPrice);
   const isOutOfStock = !data.current_stock || data.current_stock === 0;
+  const isLowStock =
+    data.current_stock && data.current_stock > 0 && data.current_stock <= 10;
 
   const handleCart = async (data: Item) => {
     try {
@@ -136,8 +135,7 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
                 src={getCartImageUrl(data.image)}
                 alt={data.title}
                 onError={(e) => {
-                  console.log("Image failed to load:", imageUrl);
-                  (e.target as HTMLImageElement).src = "/placeholder.png";
+                  (e.target as HTMLImageElement).src = " ";
                 }}
                 style={{
                   width: "100%",
@@ -146,6 +144,40 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
                   objectFit: "cover",
                 }}
               />
+
+              {/* ✅ Stock Status Badge */}
+              {isOutOfStock && (
+                <div
+                  style={{
+                    marginTop: "8px",
+                    padding: "8px 12px",
+                    backgroundColor: "#e53935",
+                    color: "#fff",
+                    borderRadius: "6px",
+                    textAlign: "center",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                  }}
+                >
+                  Out of Stock
+                </div>
+              )}
+              {isLowStock && !isOutOfStock && (
+                <div
+                  style={{
+                    marginTop: "8px",
+                    padding: "8px 12px",
+                    backgroundColor: "#ff9800",
+                    color: "#fff",
+                    borderRadius: "6px",
+                    textAlign: "center",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                  }}
+                >
+                  Only {data.current_stock} left in stock
+                </div>
+              )}
             </div>
           </Col>
 
@@ -163,20 +195,21 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
                 {data.title}
               </h5>
 
-              {/* Product Description */}
+              {/* ✅ Product Description - নতুন যোগ হয়েছে */}
               {data.description && (
                 <p
                   style={{
-                    fontSize: "14px",
+                    fontSize: "13px",
                     color: "#666",
                     marginBottom: "12px",
+                    lineHeight: "1.5",
                   }}
                 >
                   {data.description}
                 </p>
               )}
 
-              {/*    Price Display - Like ProductDetails */}
+              {/*    Price Display */}
               <div
                 className="bb-quickview-price"
                 style={{
@@ -257,6 +290,7 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
                     cart_id={cartItem?.cart_id}
                     quantity={quantity}
                     onQuantityChange={(newQty) => setQuantity(newQty)}
+                    max={data.current_stock || 0}
                   />
                 </div>
               </div>
@@ -266,7 +300,7 @@ const ItemModal = ({ closeItemModal, isModalOpen, data }: ItemModalProps) => {
                 onClick={() => handleCart(data)}
                 disabled={loading || isOutOfStock}
                 style={{
-                  width: "50%",
+                  width: "100%",
                   padding: "10px 18px",
                   backgroundColor:
                     isOutOfStock || loading ? "#b0b0b0" : "#42A590",

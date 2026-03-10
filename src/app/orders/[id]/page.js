@@ -1,10 +1,9 @@
 "use client";
+import Breadcrumb from '@/components/breadcrumb/Breadcrumb';
+import OrderPage from '@/components/order-page/OrderPage';
 import { useParams } from "next/navigation";
-import Breadcrumb from '@/components/breadcrumb/Breadcrumb'
-import OrderPage from '@/components/order-page/OrderPage'
-import React from 'react'
 
-export default function Page() { 
+export default function Page() {
   const params = useParams();
   const id = params.id;
   return (

@@ -87,11 +87,11 @@ const Shop = ({ col, lg }: any) => {
   );
 
   useEffect(() => {
-    console.log("POST DATA sent:", postData);
+    // console.log("POST DATA sent:", postData);
   }, [postData]);
 
   useEffect(() => {
-    console.log("API response:", data);
+    // console.log("API response:", data);
   }, [data]);
 
   const handleSortChange = useCallback(
@@ -150,7 +150,7 @@ const Shop = ({ col, lg }: any) => {
   };
 
   if (error) {
-    console.log("SWR ERROR:", error);
+    // console.log("SWR ERROR:", error);
     return <div>Failed to load products tow</div>;
   }
 
@@ -236,7 +236,7 @@ const Shop = ({ col, lg }: any) => {
                     className={`col-md-${col} ${lg} col-lg-4 col-6 mb-24 bb-product-box pro-bb-content ${isGridView ? "width-100 pro-bb-content" : ""}`}
                   >
                     {data.data.map((item: any, index: number) => (
-                     <></>
+                      <></>
                     ))}
                   </Fade>
                 )}

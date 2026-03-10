@@ -71,7 +71,7 @@ const Cart: React.FC = () => {
     setSubTotal(subtotal);
     const vatAmount = subtotal * 0.2;
     setVat(vatAmount);
-    console.log("cart slice", cartSlice);
+    // console.log("cart slice", cartSlice);
   }, [cartSlice]);
 
   const handleDiscountApplied = (discountValue: number) => {

@@ -51,7 +51,7 @@ const BlogSlider: React.FC<BlogSliderProps> = ({ hasPaginate = false }) => {
       day: "numeric",
     });
   };
-  console.log("blogs data", data);
+  // console.log("blogs data", data);
 
   const settings = {
     modules: [Navigation, Pagination, Autoplay],

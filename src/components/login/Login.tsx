@@ -289,7 +289,7 @@ const Login = () => {
       });
 
       const data = await res.json();
-      console.log("Login API response:", data);
+      // console.log("Login API response:", data);
 
       if (!res.ok) {
         const errorMsg =

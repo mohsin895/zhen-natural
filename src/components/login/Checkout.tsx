@@ -189,7 +189,7 @@ const Checkout = () => {
       } catch (_) {}
 
       // Response: { combined_order_id: 53, order_id: 61, result: true, message: "..." }
-      console.log("ORDER RESPONSE:", JSON.stringify(data, null, 2));
+      // console.log("ORDER RESPONSE:", JSON.stringify(data, null, 2));
 
       if (!res.ok) {
         showErrorToast(data?.message || "অর্ডার করা যায়নি।");
@@ -267,7 +267,7 @@ const Checkout = () => {
       try {
         sslData = JSON.parse(sslText);
       } catch (_) {}
-      console.log("SSL RESPONSE:", JSON.stringify(sslData, null, 2));
+      // console.log("SSL RESPONSE:", JSON.stringify(sslData, null, 2));
 
       const redirectUrl =
         sslData?.url ||
@@ -753,10 +753,10 @@ const Checkout = () => {
                                 >
                                   {orderLoading
                                     ? paymentMethod === "online"
-                                      ? "পেমেন্টে যাচ্ছেন..."
-                                      : "অর্ডার হচ্ছে..."
+                                      ? "Payment..."
+                                      : "Order..."
                                     : paymentMethod === "online"
-                                      ? "Please Pyment"
+                                      ? "Please Payment"
                                       : "Please Order"}
                                 </button>
                               </div>
