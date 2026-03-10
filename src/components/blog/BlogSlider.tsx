@@ -20,6 +20,7 @@ interface Blog {
   banner: string;
   name?: string;
   date?: string;
+  created_at?: string;
 }
 
 interface BlogSliderProps {
@@ -42,6 +43,15 @@ const BlogSlider: React.FC<BlogSliderProps> = ({ hasPaginate = false }) => {
   if (!data) return <div>Loading blogs...</div>;
 
   const blogs: Blog[] = data.blogs.data;
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+  console.log("blogs data", data);
 
   const settings = {
     modules: [Navigation, Pagination, Autoplay],
@@ -164,11 +174,15 @@ const BlogSlider: React.FC<BlogSliderProps> = ({ hasPaginate = false }) => {
                         />
                       </div>
                       <div className="blog-contact">
-                        <span>{blog.date || "Unknown date"}</span>
+                        <span>
+                          {blog.created_at
+                            ? formatDate(blog.created_at)
+                            : blog.date
+                              ? formatDate(blog.date)
+                              : ""}
+                        </span>
                         <h4>
-                          <Link href={`/blog-detail-left-sidebar/${blog.slug}`}>
-                            {blog.title}
-                          </Link>
+                          <Link href={`/blog/${blog.slug}`}>{blog.title}</Link>
                         </h4>
                       </div>
                     </div>

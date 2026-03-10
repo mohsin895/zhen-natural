@@ -17,6 +17,8 @@ interface Item {
   location: string;
   brand: string;
   sku: number;
+  description?: string;
+  short_description?: string;
   category: string;
   quantity: number;
 }

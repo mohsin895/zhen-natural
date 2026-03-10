@@ -324,17 +324,26 @@ const Footer: React.FC<FooterProps> = ({
           {/* Bottom */}
           <div className="footer-bottom">
             <div className="container text-center">
-              <h4 className="">
-                Copyright © {new Date().getFullYear()} Zhen Natural. All Rights
-                Reserved. Powered by{" "}
+              <h6 className=" text-gray-200">
+                Copyright © {new Date().getFullYear()}{" "}
+                <a
+                  href="https://zhennatural.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#7E92CA]"
+                >
+                  Zhen Natural Ltd .
+                </a>{" "}
+                All Rights Reserved. Powered by{" "}
                 <a
                   href="https://nelsistech.com/"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="text-[#7E92CA]"
                 >
                   Nelsis Tech
                 </a>
-              </h4>
+              </h6>
             </div>
           </div>
         </div>

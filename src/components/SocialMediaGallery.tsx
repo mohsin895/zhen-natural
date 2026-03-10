@@ -87,6 +87,7 @@ const SocialMediaGallery: React.FC<BrandsProps> = ({
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   fontSize: "42px",
+                  marginBlock: "16px",
                 }}
               >
                 Social Media Gallery

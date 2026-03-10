@@ -1,5 +1,5 @@
 export const getCartImageUrl = (image: any): string => {
-  if (!image) return "/placeholder.png";
+  if (!image) return "  ";
 
   const basePath = process.env.NEXT_PUBLIC_PATH || "";
 
@@ -12,5 +12,5 @@ export const getCartImageUrl = (image: any): string => {
     return `${basePath}/${image.file_name}`;
   }
 
-  return "/placeholder.png";
+  return " ";
 };
