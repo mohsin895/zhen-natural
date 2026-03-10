@@ -315,8 +315,8 @@ const Footer: React.FC<FooterProps> = ({
           {/* SSL */}
           <div className="text-center py-3">
             <img
-              src="/assets/img/sslcommerz.png"
-              alt="SSLCommerz Payment Gateway"
+              src="/assets/img/sslcommerz/sslcommerz.png"
+              alt="sslcommerz Payment Gateway"
               style={{ maxWidth: "480px", height: "auto" }}
             />
           </div>
