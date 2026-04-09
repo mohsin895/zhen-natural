@@ -110,17 +110,18 @@ const WholesaleCard: React.FC<WholesaleCardProps> = ({
         }
         .ws-card:hover .ws-card__img { transform: scale(1.05); }
         .ws-card__title {
-          padding: 8px 10px 4px;
-          font-size: 13px;
-          font-weight: 600;
-          color: #1a2008;
-          line-height: 1.4;
-          overflow: hidden;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          margin: 0;
-        }
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a2008;
+  line-height: 1.4;
+  margin: 0;
+  overflow: visible;       /* allow full text */
+  display: block;          /* remove -webkit-box */
+  -webkit-line-clamp: unset; 
+  -webkit-box-orient: unset;
+  word-wrap: break-word;   /* optional, ensures long words wrap */
+}
         .ws-card__qty {
           display: flex;
           align-items: center;

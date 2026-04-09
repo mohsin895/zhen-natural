@@ -1,6 +1,8 @@
 "use client";
 import { addToCartApi } from "@/api/cart";
 import { ProductData } from "@/app/details/[slug]/page";
+import { useRouter } from "next/navigation";
+
 import {
   showErrorToast,
   showSuccessToast,
@@ -27,7 +29,7 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
     }
     return product.unit_price - product.discount;
   };
-
+  const router = useRouter();
   const discountedPrice = calculatePrice();
   const discountPercent =
     product.discount > 0 && product.unit_price > 0
@@ -75,6 +77,41 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
         );
         showSuccessToast("Added to cart!");
         setQuantity(1);
+      }
+    } catch (error: any) {
+      showErrorToast(error.message || "Failed to add to cart");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleBuyNow = async () => {
+    try {
+      setLoading(true);
+      const data = await addToCartApi(product.id, quantity);
+
+      if (data.result && data.cart && data.cart.length > 0) {
+        const cartItem = data.cart.find(
+          (c: any) => c.product_id === product.id,
+        );
+        if (!cartItem) throw new Error("Cart item not found");
+
+        dispatch(
+          addItem({
+            cart_id: cartItem.id,
+            id: product.id,
+            title: product.name,
+            slug: product.slug,
+            newPrice: discountedPrice,
+            image: getCartImageUrl(product.thumbnail?.file_name),
+            quantity: cartItem.quantity,
+            oldPrice: product.unit_price,
+            status: product.current_stock > 0 ? "In Stock" : "Out Of Stock",
+          }),
+        );
+
+        setQuantity(1);
+
+        router.push("/checkout");
       }
     } catch (error: any) {
       showErrorToast(error.message || "Failed to add to cart");
@@ -176,21 +213,23 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
 
               {/* Add to Cart Button */}
               <button
+                type="button"
                 onClick={handleAddToCart}
                 disabled={loading || !isInStock}
                 style={styles.cartBtn(loading || !isInStock)}
               >
-                {loading ? (
-                  <>
-                    <span style={styles.spinner} /> Adding...
-                  </>
-                ) : isInStock ? (
-                  "Add to Cart"
-                ) : (
-                  "Out of Stock"
-                )}
+                Add to Cart
+              </button>
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                disabled={loading || !isInStock}
+                style={styles.cartBtn(loading || !isInStock)}
+              >
+                Buy Now
               </button>
             </div>
+
             {product.tags && (
               <div style={styles.tags}>
                 <h6>Tags:</h6>

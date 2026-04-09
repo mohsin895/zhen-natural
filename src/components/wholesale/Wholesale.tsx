@@ -349,12 +349,12 @@ const WholesalePage = () => {
           margin-bottom: 16px;
           display: flex; align-items: center; gap: 10px;
         }
-        .ws-bot-title span { background: #82bc23; color: #fff; font-size: 12px; padding: 2px 10px; border-radius: 20px; }
+        .ws-bot-title span { background: #82bc23; color: #fff; font-size: 12px; padding: 4px 10px; border-radius: 20px; }
         .ws-prod-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-          gap: 12px;
-        }
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* 6 items per row */
+  gap: 12px;
+}
         .ws-prod-msg { grid-column: 1/-1; text-align: center; padding: 40px; color: #82bc23; font-size: 14px; }
 
         /* ── Success ── */

@@ -158,6 +158,19 @@ const BlogSlider: React.FC<BlogSliderProps> = ({ hasPaginate = false }) => {
         <div className="container">
           <Row>
             <div className="col-12">
+              <div className="category-title mb-4">
+                <h2
+                  style={{
+                    background:
+                      "linear-gradient(to right, #0ed7ff 8%, #82bc23 14%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    fontSize: "48px",
+                  }}
+                >
+                  The Blog
+                </h2>
+              </div>
               <Swiper {...settings} className="blog-2-slider">
                 {blogs.map((blog) => (
                   <SwiperSlide key={blog.id}>

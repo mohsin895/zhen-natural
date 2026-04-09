@@ -206,14 +206,15 @@ const ProductItemCard = ({ data }: any) => {
         </div>
 
         <div className="bb-pro-contact">
-          <h4 className="bb-pro-title">
+          <h4 className="text-base text-black mb-2">
             <Link href={`/details/${data.slug}`}>{data.title}</Link>
           </h4>
           <div className="bb-price">
             <div className="inner-price">
               <span className="new-price">{data.newPrice}</span>
               <span
-                className={`${data.oldPrice && data.oldPrice !== data.newPrice ? "old-price" : "item-left"}`}
+                style={{ color: "red", fontWeight: 700 }}
+                className={` ${data.oldPrice && data.oldPrice !== data.newPrice ? "old-price" : "item-left"}`}
               >
                 {data.oldPrice && data.oldPrice !== data.newPrice
                   ? data.oldPrice
