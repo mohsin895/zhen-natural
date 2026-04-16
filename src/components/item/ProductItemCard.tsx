@@ -145,13 +145,25 @@ const ProductItemCard = ({ data }: any) => {
             <span className="flags"></span>
           ) : null}
 
-          <div
-            className="inner-img"
-            style={isOutOfStock ? { filter: "grayscale(60%)" } : {}}
-          >
-            <img className="main-img" src={data.image} alt={data.title} />
-            <img className="hover-img" src={data.imageTwo} alt={data.title} />
-          </div>
+          <Link href={`/details/${data.slug}`}>
+            <div
+              className="inner-img"
+              style={isOutOfStock ? { filter: "grayscale(60%)" } : {}}
+            >
+              <img
+                className="main-img"
+                src={data.image}
+                alt={data.title}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+              <img
+                className="hover-img"
+                src={data.imageTwo}
+                alt={data.title}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </div>
+          </Link>
 
           {isOutOfStock && (
             <div

@@ -123,6 +123,7 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
       setError(null);
       try {
         let url = `${API_BASE}/all-products`;
+        console.log("API_BASE:", API_BASE);
 
         if (keyword || categoryId) {
           const params = new URLSearchParams();
@@ -132,8 +133,12 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
         } else {
           const activeCat =
             forcedCategory || urlCategory || selectedCategory[0] || null;
+          console.log("Selected Category:", selectedCategory);
+
           if (activeCat) {
             url = `${API_BASE}/products/category/${activeCat}`;
+
+            console.log("Final API:", url);
           }
         }
 
@@ -149,7 +154,7 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
           oldPrice: item.stroked_price,
           image: item.thumbnail_image,
           imageTwo: item.thumbnail_image,
-          category: item.category || "",
+          category: item.category_slug || item.category?.slug || "",
           weight: item.weight || "",
           rating: item.rating || 0,
           quantity: 1,
@@ -192,6 +197,7 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
       return parseFloat(String(price).replace(/[^\d.]/g, "")) || 0;
     };
 
+    // Search
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
@@ -202,10 +208,12 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
       );
     }
 
+    //   Brand
     if (selectedBrand.length > 0) {
       result = result.filter((item) => selectedBrand.includes(item.brand));
     }
 
+    //   Price
     if (minPrice > 0) {
       result = result.filter((item) => parsePrice(item.newPrice) >= minPrice);
     }
@@ -215,7 +223,7 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
     }
 
     return result.slice(0, 12);
-  }, [data, searchQuery, selectedBrand, minPrice, maxPrice]);
+  }, [data, searchQuery, selectedBrand, minPrice, maxPrice, selectedCategory]);
 
   return (
     <section className="section-products-details pb-100">
@@ -316,7 +324,7 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
               <Row>
                 {filteredProducts.map((item: any, idx: number) => (
                   <div
-                    className="col-xl-3 col-md-4 col-6 mb-24 bb-product-box"
+                    className="col-xl-4 col-md-4 col-6 mb-24 bb-product-box"
                     key={item.id || idx}
                   >
                     <Fade

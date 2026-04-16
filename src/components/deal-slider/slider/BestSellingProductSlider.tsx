@@ -8,13 +8,15 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import "swiper/css";
 
-const API_URL = `${process.env.NEXT_PUBLIC_DOMAIN}/all-products`;
+const API_URL = `${process.env.NEXT_PUBLIC_DOMAIN}/products/best-seller`;
 
 interface SliderProps {
   hasPaginate?: boolean;
 }
 
-const Slider: React.FC<SliderProps> = ({ hasPaginate = false }) => {
+const BestSellingProductSlider: React.FC<SliderProps> = ({
+  hasPaginate = false,
+}) => {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,4 +98,4 @@ const Slider: React.FC<SliderProps> = ({ hasPaginate = false }) => {
   );
 };
 
-export default Slider;
+export default BestSellingProductSlider;
