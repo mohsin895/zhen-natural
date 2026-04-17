@@ -107,7 +107,7 @@ const MobileMenu = ({
                   >
                     {loading && (
                       <li>
-                        <span>Loading...</span>
+                        <span></span>
                       </li>
                     )}
 
@@ -154,7 +154,7 @@ const MobileMenu = ({
                   >
                     {loading && (
                       <li>
-                        <span>Loading...</span>
+                        <span></span>
                       </li>
                     )}
 

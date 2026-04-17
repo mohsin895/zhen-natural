@@ -27,7 +27,7 @@ const Yoga = () => {
   }, []);
 
   if (loading) {
-    return <div style={{ textAlign: "center" }}>Loading...</div>;
+    return <div style={{ textAlign: "center" }}></div>;
   }
 
   return (

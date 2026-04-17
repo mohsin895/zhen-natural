@@ -66,7 +66,7 @@ const BlogDetailsPage = ({ params }: { params: Promise<{ slug: string }> }) => {
         <Breadcrumb title={"Blog"} />
         <section className="section-product padding-tb-50">
           <div className="container">
-            <div className="blog-loading">Loading...</div>
+            <div className="blog-loading"></div>
           </div>
         </section>
       </>

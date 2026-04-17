@@ -1,10 +1,10 @@
-import { Suspense } from 'react'
 import Breadcrumb from '@/components/breadcrumb/Breadcrumb'
+import { Suspense } from 'react'
 
 
 export default function Page() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div></div>}>
             <Breadcrumb title={"Product Page"} />
 
         </Suspense>

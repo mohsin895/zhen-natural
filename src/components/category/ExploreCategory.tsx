@@ -46,7 +46,7 @@ const ExploreCategory = ({ onSuccess = () => {}, onError = () => {} }) => {
     },
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  // if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Failed to load categories</div>;
 
   return (

@@ -92,7 +92,7 @@ const HeaderBottom = () => {
                       <ul className="bb-dropdown-menu">
                         {loading && (
                           <li>
-                            <span>Loading...</span>
+                            <span></span>
                           </li>
                         )}
 
@@ -159,7 +159,7 @@ const HeaderBottom = () => {
                       <ul className="bb-dropdown-menu">
                         {loading && (
                           <li>
-                            <span>Loading...</span>
+                            <span></span>
                           </li>
                         )}
 

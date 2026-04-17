@@ -39,9 +39,8 @@ const NewArrivalSlider: React.FC<SliderProps> = ({ hasPaginate = false }) => {
     fetchProducts();
   }, [hasPaginate]);
 
-  if (loading) return <div>Loading products...</div>;
+  // if (loading) return <div>Loading products...</div>;
   if (error) return <div>{error}</div>;
-  if (!products.length) return <div>No products found</div>;
 
   return (
     <div className="col-12">

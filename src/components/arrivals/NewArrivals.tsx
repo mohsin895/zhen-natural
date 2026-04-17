@@ -70,7 +70,7 @@ const NewArrivals = () => {
     fetchProducts();
   }, []);
 
-  if (loading) return <div className="text-center py-5">Loading...</div>;
+  if (loading) return <div className="text-center py-5"></div>;
   if (error) return <div className="text-center py-5 text-danger">{error}</div>;
   if (!data.length)
     return <div className="text-center py-5">No products found</div>;

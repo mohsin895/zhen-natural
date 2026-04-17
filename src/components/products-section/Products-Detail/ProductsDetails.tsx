@@ -3,6 +3,7 @@ import { addToCartApi } from "@/api/cart";
 import { ProductData } from "@/app/details/[slug]/page";
 import { useRouter } from "next/navigation";
 
+import SidebarCart from "@/components/cart/SidebarCart";
 import {
   showErrorToast,
   showSuccessToast,
@@ -19,6 +20,7 @@ interface ProductsDetailsProps {
 }
 
 const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -75,7 +77,11 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
             quantity: cartItem.quantity,
           }),
         );
+
         showSuccessToast("Added to cart!");
+
+        openCart();
+
         setQuantity(1);
       }
     } catch (error: any) {
@@ -84,6 +90,8 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
       setLoading(false);
     }
   };
+  const openCart = () => setIsCartOpen(true);
+  const closeCart = () => setIsCartOpen(false);
   const handleBuyNow = async () => {
     try {
       setLoading(true);
@@ -133,125 +141,128 @@ const ProductsDetails: React.FC<ProductsDetailsProps> = ({ product }) => {
   const isInStock = product.current_stock > 0;
 
   return (
-    <div className="bb-single-pro">
-      <Row>
-        {/* ── LEFT: Slider ── */}
-        <Col sm={12} lg={5} className="col-12 mb-24">
-          <SingleProductSlider
-            product={{
-              ...product,
-              image: getCartImageUrl(product.thumbnail?.file_name),
-              thumbnail: {
-                file_name: getCartImageUrl(product.thumbnail?.file_name),
-              },
-            }}
-          />
-        </Col>
+    <>
+      <div className="bb-single-pro">
+        <Row>
+          {/* ── LEFT: Slider ── */}
+          <Col sm={12} lg={5} className="col-12 mb-24">
+            <SingleProductSlider
+              product={{
+                ...product,
+                image: getCartImageUrl(product.thumbnail?.file_name),
+                thumbnail: {
+                  file_name: getCartImageUrl(product.thumbnail?.file_name),
+                },
+              }}
+            />
+          </Col>
 
-        {/* ── RIGHT: Details ── */}
-        <Col lg={7} className="col-12 mb-24">
-          <div className="bb-single-pro-contact" style={styles.contact}>
-            {/* Product Name */}
-            <div className="bb-sub-title" style={styles.titleWrap}>
-              <h4 style={styles.title}>{product.name}</h4>
-            </div>
+          {/* ── RIGHT: Details ── */}
+          <Col lg={7} className="col-12 mb-24">
+            <div className="bb-single-pro-contact" style={styles.contact}>
+              {/* Product Name */}
+              <div className="bb-sub-title" style={styles.titleWrap}>
+                <h4 style={styles.title}>{product.name}</h4>
+              </div>
 
-            {/* Description */}
-            {description ? (
-              <div
-                style={styles.short_description}
-                dangerouslySetInnerHTML={{ __html: description }}
-              />
-            ) : (
-              <p
-                style={{
-                  ...styles.short_description,
-                  color: "#aaa",
-                  fontStyle: "italic",
-                }}
-              >
-                No description available.
-              </p>
-            )}
+              {/* Description */}
+              {description ? (
+                <div
+                  style={styles.short_description}
+                  dangerouslySetInnerHTML={{ __html: description }}
+                />
+              ) : (
+                <p
+                  style={{
+                    ...styles.short_description,
+                    color: "#aaa",
+                    fontStyle: "italic",
+                  }}
+                >
+                  No description available.
+                </p>
+              )}
 
-            {/* Divider */}
-            <div style={styles.divider} />
+              {/* Divider */}
+              <div style={styles.divider} />
 
-            {/* Pricing */}
-            <div style={styles.priceBox}>
-              <span style={styles.currentPrice}>
-                BDT {discountedPrice.toFixed(2)}
-              </span>
-              {product.discount > 0 && (
-                <>
-                  <span style={styles.oldPrice}>
-                    BDT {product.unit_price.toFixed(2)}
-                  </span>
-                  <span style={styles.discountTag}>
-                    -{discountPercent}% OFF
-                  </span>
-                </>
+              {/* Pricing */}
+              <div style={styles.priceBox}>
+                <span style={styles.currentPrice}>
+                  BDT {discountedPrice.toFixed(2)}
+                </span>
+                {product.discount > 0 && (
+                  <>
+                    <span style={styles.oldPrice}>
+                      BDT {product.unit_price.toFixed(2)}
+                    </span>
+                    <span style={styles.discountTag}>
+                      -{discountPercent}% OFF
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div style={styles.divider} />
+
+              {/* Quantity + Add to Cart */}
+              <div className="bb-single-qty" style={styles.qtyRow}>
+                {/* Quantity Control */}
+                <div style={styles.qtyControl}>
+                  <button
+                    onClick={handleDecrement}
+                    style={styles.qtyBtn}
+                    disabled={quantity <= 1}
+                    aria-label="Decrease quantity"
+                  >
+                    −
+                  </button>
+                  <span style={styles.qtyValue}>{quantity}</span>
+                  <button
+                    onClick={handleIncrement}
+                    style={styles.qtyBtn}
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+
+                {/* Add to Cart Button */}
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  disabled={loading || !isInStock}
+                  style={styles.cartBtn(loading || !isInStock)}
+                >
+                  Add to Cart
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBuyNow}
+                  disabled={loading || !isInStock}
+                  style={styles.cartBtn(loading || !isInStock)}
+                >
+                  Buy Now
+                </button>
+              </div>
+
+              {product.tags && (
+                <div style={styles.tags}>
+                  <h6>Tags:</h6>
+                  {product.tags.split(",").map((tag: string, index: number) => (
+                    <span key={index} style={styles.tag}>
+                      {tag.trim()}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
-
-            {/* Divider */}
-            <div style={styles.divider} />
-
-            {/* Quantity + Add to Cart */}
-            <div className="bb-single-qty" style={styles.qtyRow}>
-              {/* Quantity Control */}
-              <div style={styles.qtyControl}>
-                <button
-                  onClick={handleDecrement}
-                  style={styles.qtyBtn}
-                  disabled={quantity <= 1}
-                  aria-label="Decrease quantity"
-                >
-                  −
-                </button>
-                <span style={styles.qtyValue}>{quantity}</span>
-                <button
-                  onClick={handleIncrement}
-                  style={styles.qtyBtn}
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
-              </div>
-
-              {/* Add to Cart Button */}
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={loading || !isInStock}
-                style={styles.cartBtn(loading || !isInStock)}
-              >
-                Add to Cart
-              </button>
-              <button
-                type="button"
-                onClick={handleBuyNow}
-                disabled={loading || !isInStock}
-                style={styles.cartBtn(loading || !isInStock)}
-              >
-                Buy Now
-              </button>
-            </div>
-
-            {product.tags && (
-              <div style={styles.tags}>
-                <h6>Tags:</h6>
-                {product.tags.split(",").map((tag: string, index: number) => (
-                  <span key={index} style={styles.tag}>
-                    {tag.trim()}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </Col>
-      </Row>
-    </div>
+          </Col>
+        </Row>
+      </div>
+      <SidebarCart isCartOpen={isCartOpen} closeCart={closeCart} />
+    </>
   );
 };
 

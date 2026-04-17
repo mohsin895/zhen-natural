@@ -73,9 +73,23 @@ const SidebarCart = ({
 
                   <a
                     onClick={closeCart}
-                    className="bb-cart-close"
-                    title="Close Cart"
-                  ></a>
+                    style={{
+                      color: "#FFF",
+                      backgroundColor: "#FF0000",
+                      padding: "5px",
+                      width: "22px",
+                      height: "22px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "50%",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                    }}
+                    title="Close"
+                  >
+                    X
+                  </a>
                 </div>
               </div>
 
