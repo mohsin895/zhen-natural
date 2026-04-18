@@ -4224,7 +4224,7 @@ button.btn-close.qty_close {
 /* Layouts ( Import Layouts ) */
 /* Hero */
 .section-hero {
-  padding: 50px 0;
+  
   position: relative;
   background-color: #f8f8fb;
   overflow: hidden;
@@ -5089,6 +5089,7 @@ button.btn-close.qty_close {
 }
 .bb-pro-box .bb-pro-contact {
   padding: 20px;
+    height: 185px;
 }
 .bb-pro-box .bb-pro-contact .bb-pro-subtitle {
   margin-bottom: 8px;

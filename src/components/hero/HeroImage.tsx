@@ -20,8 +20,8 @@ const HeroImage: React.FC<HeroImageProps> = ({ src, alt }) => {
     }, []);
 
     return (
-        <div className="hero-image">
-            <img src={src} alt={alt} />
+        <div >
+            <img src={src} alt={alt} style={{ width: '100%' }} />
             {isSvgLoading ? (
                 <div className="hero-loader">
                     <div className="spinner"></div>

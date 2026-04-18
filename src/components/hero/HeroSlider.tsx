@@ -34,7 +34,7 @@ const HeroSlider: React.FC = () => {
             {/*<NewsletterModal />*/}
 
             <section className="section-hero margin-b-50">
-                <div className="container">
+
                     <Row>
                         <div className="col-12">
                             <div className="hero-slider swiper-container">
@@ -95,7 +95,7 @@ const HeroSlider: React.FC = () => {
                             </div>
                         </div>
                     </Row>
-                </div>
+
 
                 <ScrollPage />
             </section>
