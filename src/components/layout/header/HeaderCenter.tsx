@@ -88,7 +88,7 @@ const HeaderCenter = ({ wishlistItem, cartSlice }: any) => {
     if (searchInput) params.set("keyword", searchInput);
     if (selectedItem?.id) params.set("category_id", selectedItem.id);
 
-    router.push(`/all-products?${params.toString()}`);
+    router.push(`/search-products?${params.toString()}`);
   };
 
   const openCart = () => setIsCartOpen(true);
