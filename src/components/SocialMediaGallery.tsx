@@ -71,8 +71,8 @@ const SocialMediaGallery: React.FC<BrandsProps> = ({
     },
   };
 
-  if (error) return <div>Failed to load brands: {error}</div>;
-  if (loading) return <div>Loading brands...</div>;
+  // if (error) return <div>Failed to load brands: {error}</div>;
+  // if (loading) return <div>Loading brands...</div>;
 
   return (
     <section className="section-instagram padding-tb-50">

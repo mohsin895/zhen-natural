@@ -14,9 +14,11 @@ const Page = () => {
         <div className="container">
           <Row className="mb-minus-24">
             {/* FIX: Wrap with Suspense */}
-            <Suspense fallback={<div>Loading products...</div>}>
+            {/*<Suspense fallback={<div>Loading products...</div>}>*/}
+            {/*  */}
+            {/*</Suspense>*/}
+
               <ProductsAccordion />
-            </Suspense>
           </Row>
         </div>
       </section>
