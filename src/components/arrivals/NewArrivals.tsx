@@ -6,7 +6,7 @@ import { TabPanel, Tabs } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import ProductItemCard from "../item/ProductItemCard";
 
-const API_URL = `${process.env.NEXT_PUBLIC_DOMAIN}/all-products`;
+const API_URL = `${process.env.NEXT_PUBLIC_DOMAIN}/products/new-arrival`;
 
 const NewArrivals = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
