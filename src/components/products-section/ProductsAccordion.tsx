@@ -3,7 +3,7 @@
 import ProductItemCard from "@/components/item/ProductItemCard";
 import { RootState } from "@/store";
 import {
-    setPriceRange,      // FIX: was setRange — wrong Redux field, price filter never fired
+    setPriceRange,
     setSearchTerm,
     setSelectedCategory,
     setSelectedTags,
@@ -37,7 +37,6 @@ const parsePrice = (price: any): number => {
     return isNaN(parsed) ? 0 : parsed;
 };
 
-// Shape a raw API product item into a normalised card-ready object
 const normaliseProduct = (item: any) => ({
     id:            item.id,
     title:         item.name,
@@ -50,7 +49,7 @@ const normaliseProduct = (item: any) => ({
     weight:        item.weight || "",
     rating:        parseFloat(item.rating) || 0,
     quantity:      1,
-    has_discount:  item.has_discount  || false,
+    has_discount:  item.has_discount || false,
     discount:      parseFloat(item.discount) || 0,
     discount_type: item.discount_type || "",
     sale:          item.has_discount ? `-${item.discount}` : "",
@@ -58,43 +57,53 @@ const normaliseProduct = (item: any) => ({
     date:          "",
     status:        "",
     location:      "",
-    brand:         item.brand || "",
-    sku:           item.id,
+    brand:
+        typeof item.brand === "object" && item.brand !== null
+            ? (item.brand.name ?? "")
+            : (item.brand ?? ""),
+    brand_id:
+        item.brand_id ??
+        (typeof item.brand === "object" && item.brand !== null ? item.brand.id : null),
+    sku: item.id,
 });
 
 const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
     const { minPrice, maxPrice, selectedCategory, selectedTags, sortOption } =
         useSelector((state: RootState) => state.filter);
 
-    const dispatch = useDispatch();
-    const router   = useRouter();
+    const dispatch     = useDispatch();
+    const router       = useRouter();
     const searchParams = useSearchParams();
 
-    // URL params — drive the API fetch when coming from header search
+    // ── URL params ──
     const urlCategory   = searchParams.get("category");
     const urlKeyword    = searchParams.get("keyword");
     const urlCategoryId = searchParams.get("category_id");
+    // FIX: brand ids now live in the URL as ?brands=1,2,3
+    // This makes brand behave exactly like category — URL change → fetch → results.
+    const urlBrands     = searchParams.get("brands");
 
-    const [data, setData]           = useState<any[]>([]);
-    const [loading, setLoading]     = useState(true);
-    const [error, setError]         = useState<string | null>(null);
+    const [data, setData]       = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError]     = useState<string | null>(null);
 
     const [categories, setCategories]               = useState<any[]>([]);
     const [categoriesLoading, setCategoriesLoading] = useState(true);
     const [brands, setBrands]                       = useState<any[]>([]);
     const [brandsLoading, setBrandsLoading]         = useState(true);
-    const [selectedBrand, setSelectedBrand]         = useState<any[]>([]);
 
-    // Real-time local search — filters already-fetched results instantly
     const [localSearch, setLocalSearch] = useState("");
 
     const API_BASE = process.env.NEXT_PUBLIC_DOMAIN;
 
+    // Derive selected brand ids from URL — URL is the single source of truth
+    const selectedBrandIds: string[] = useMemo(
+        () => (urlBrands ? urlBrands.split(",").filter(Boolean) : []),
+        [urlBrands],
+    );
+
     // ── Handlers ──
 
-    // FIX: dispatch setPriceRange so state.minPrice / state.maxPrice actually update.
-    // Previously dispatched setRange which writes to state.range — a different field
-    // the useMemo was never reading, so price filtering silently did nothing.
     const handlePriceChange = useCallback(
         (min: number, max: number) => {
             dispatch(setPriceRange({ min, max }));
@@ -109,10 +118,22 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
         dispatch(setSelectedCategory(updated));
     };
 
-    const handleBrandChange = (brand: any) => {
-        setSelectedBrand((prev) =>
-            prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand],
-        );
+    // FIX: brand click → update URL (?brands=1,2,3) → useEffect re-runs →
+    // fetch hits /products/search?brands=1,2,3 → Laravel filters by brand_id.
+    // Previously brand was local state only, never touched the URL or API.
+    const handleBrandChange = (brandId: string | number) => {
+        const id     = String(brandId);
+        const newIds = selectedBrandIds.includes(id)
+            ? selectedBrandIds.filter((b) => b !== id)
+            : [...selectedBrandIds, id];
+
+        const params = new URLSearchParams(searchParams.toString());
+        if (newIds.length > 0) {
+            params.set("brands", newIds.join(","));
+        } else {
+            params.delete("brands");
+        }
+        router.push(`?${params.toString()}`);
     };
 
     const handleTagsChange = (tag: any) => {
@@ -126,25 +147,22 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
         dispatch(setSortOption(e.target.value));
     };
 
-    // Clear URL keyword: wipe Redux + navigate away from ?keyword= URL
     const handleUrlKeywordClear = () => {
         dispatch(setSearchTerm(""));
-        const params = new URLSearchParams();
-        if (urlCategoryId) params.set("category_id", urlCategoryId);
-        const qs = params.toString();
-        router.push(`/all-products${qs ? `?${qs}` : ""}`);
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("keyword");
+        params.delete("category_id");
+        router.push(`/all-products${params.toString() ? `?${params.toString()}` : ""}`);
     };
 
     const handleClearAll = () => {
         setLocalSearch("");
-        setSelectedBrand([]);
         dispatch(setPriceRange({ min: 0, max: 0 }));
         dispatch(setSortOption(""));
         dispatch(setSelectedCategory([]));
-        if (urlKeyword) {
-            dispatch(setSearchTerm(""));
-            router.push("/all-products");
-        }
+        if (urlKeyword) dispatch(setSearchTerm(""));
+        // Wipe all URL params including brands
+        router.push("/all-products");
     };
 
     // ── Fetch Categories ──
@@ -178,6 +196,7 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
     }, [API_BASE]);
 
     // ── Fetch Products ──
+    // Triggered by ANY URL param change: keyword, category_id, brands.
     useEffect(() => {
         (async () => {
             setLoading(true);
@@ -185,27 +204,24 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
             try {
                 let rawProducts: any[] = [];
 
-                if (urlKeyword || urlCategoryId) {
-                    // ── Header search: single API call, server handles keyword + category ──
+                if (urlKeyword || urlCategoryId || urlBrands) {
+                    // Search endpoint handles keyword + category + brands together
                     const params = new URLSearchParams();
-                    if (urlKeyword)    params.append("keyword", urlKeyword);
+                    if (urlKeyword)    params.append("keyword",     urlKeyword);
                     if (urlCategoryId) params.append("category_id", urlCategoryId);
+                    if (urlBrands)     params.append("brands",      urlBrands); // sent to Laravel
                     const res    = await fetch(`${API_BASE}/products/search?${params.toString()}`);
                     if (!res.ok) throw new Error("Search failed");
                     const result = await res.json();
                     rawProducts  = result.data || [];
 
                 } else if (selectedCategory.length > 0 || forcedCategory || urlCategory) {
-                    // ── Category browsing ──
-                    // FIX: when MULTIPLE categories are checked, the original code used
-                    // selectedCategory[0] which always fetched only the first category.
-                    // Now we fetch ALL selected categories in parallel and merge results,
-                    // deduplicating by product id so no card appears twice.
+                    // Category browsing (no keyword/brand active)
                     const cats = forcedCategory
                         ? [forcedCategory]
                         : urlCategory
                             ? [urlCategory]
-                            : selectedCategory; // <-- now uses the full array, not just [0]
+                            : selectedCategory;
 
                     const responses = await Promise.all(
                         cats.map((cat) =>
@@ -215,7 +231,6 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
                         ),
                     );
 
-                    // Flatten all results then deduplicate by product id
                     const merged = responses.flatMap((r) => r.data || []);
                     const seen   = new Set<number>();
                     rawProducts  = merged.filter((item) => {
@@ -225,7 +240,7 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
                     });
 
                 } else {
-                    // ── No filter: fetch all products ──
+                    // No filters — fetch all
                     const res = await fetch(`${API_BASE}/all-products`);
                     if (!res.ok) throw new Error("Failed to fetch products");
                     const result = await res.json();
@@ -241,16 +256,16 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
         })();
     }, [
         forcedCategory,
-        selectedCategory,   // whole array — any checkbox change triggers re-fetch
+        selectedCategory,
         urlCategory,
         urlKeyword,
         urlCategoryId,
+        urlBrands,   // ← brand URL param triggers re-fetch just like category
         API_BASE,
     ]);
 
     // ── Client-side filter + sort ──
-    // The API owns: keyword search, category filtering.
-    // The client owns: local text search, brand, price range, sort.
+    // Brand is now server-side. Client only handles: local search, price, sort.
     const filteredProducts = useMemo(() => {
         let result = [...data];
 
@@ -265,12 +280,7 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
             );
         }
 
-        // 2. Brand filter
-        if (selectedBrand.length > 0) {
-            result = result.filter((item) => selectedBrand.includes(item.brand));
-        }
-
-        // 3. Price range — works now because handlePriceChange dispatches setPriceRange
+        // 2. Price range
         if (minPrice > 0) {
             result = result.filter((item) => parsePrice(item.newPrice) >= minPrice);
         }
@@ -278,7 +288,7 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
             result = result.filter((item) => parsePrice(item.newPrice) <= maxPrice);
         }
 
-        // 4. Sort — runs on the full filtered array, slice happens AFTER
+        // 3. Sort
         switch (sortOption) {
             case "price_asc":
                 result.sort((a, b) => parsePrice(a.newPrice) - parsePrice(b.newPrice));
@@ -304,14 +314,14 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
                 break;
         }
 
-        // 5. Slice last — after filtering and sorting
+        // 4. Slice after filter + sort
         return result.slice(0, 12);
-    }, [data, localSearch, selectedBrand, minPrice, maxPrice, sortOption]);
+    }, [data, localSearch, minPrice, maxPrice, sortOption]);
 
     const hasActiveFilters =
         !!urlKeyword ||
         !!localSearch.trim() ||
-        selectedBrand.length > 0 ||
+        selectedBrandIds.length > 0 ||
         minPrice > 0 ||
         maxPrice > 0 ||
         !!sortOption;
@@ -330,7 +340,7 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
                             min={minPrice || 0}
                             max={maxPrice || 1000}
                             selectedCategory={selectedCategory}
-                            selectedBrand={selectedBrand}
+                            selectedBrandIds={selectedBrandIds}
                             categories={categories}
                             categoriesLoading={categoriesLoading}
                             brands={brands}
@@ -343,16 +353,14 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
 
                         {/* Sort bar */}
                         <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-              <span className="text-muted" style={{ fontSize: "0.875rem" }}>
-                {loading
-                    ? "Loading…"
-                    : `${filteredProducts.length} product${
-                        filteredProducts.length !== 1 ? "s" : ""
-                    } found`}
-              </span>
+                            <span className="text-muted" style={{ fontSize: "0.875rem" }}>
+                                {loading
+                                    ? "Loading…"
+                                    : `${filteredProducts.length} product${filteredProducts.length !== 1 ? "s" : ""} found`}
+                            </span>
 
                             <div className="d-flex align-items-center gap-2 flex-wrap">
-                                {/* Real-time local text search */}
+                                {/* Local search */}
                                 <div className="d-flex align-items-center gap-1">
                                     <i className="ri-search-line text-muted" style={{ fontSize: "1rem" }} />
                                     <input
@@ -408,56 +416,57 @@ const ProductsAccordion = ({ forcedCategory }: ProductsAccordionProps) => {
 
                                 {urlKeyword && (
                                     <span className="badge bg-primary d-flex align-items-center gap-1">
-                    Search: &quot;{urlKeyword}&quot;
+                                        Search: &quot;{urlKeyword}&quot;
                                         <button
                                             className="btn-close btn-close-white"
                                             style={{ fontSize: "0.55rem" }}
                                             onClick={handleUrlKeywordClear}
                                             aria-label="Remove keyword search"
                                         />
-                  </span>
+                                    </span>
                                 )}
 
                                 {localSearch.trim() && (
                                     <span className="badge bg-secondary d-flex align-items-center gap-1">
-                    Filter: &quot;{localSearch}&quot;
+                                        Filter: &quot;{localSearch}&quot;
                                         <button
                                             className="btn-close btn-close-white"
                                             style={{ fontSize: "0.55rem" }}
                                             onClick={() => setLocalSearch("")}
                                             aria-label="Remove local search"
                                         />
-                  </span>
+                                    </span>
                                 )}
 
-                                {selectedBrand.map((b) => (
-                                    <span key={b} className="badge bg-secondary d-flex align-items-center gap-1">
-                    {b}
+                                {/* Brand badges — name looked up from brands list by id */}
+                                {selectedBrandIds.map((id) => (
+                                    <span key={id} className="badge bg-secondary d-flex align-items-center gap-1">
+                                        {brands.find((b) => String(b.id) === id)?.name ?? id}
                                         <button
                                             className="btn-close btn-close-white"
                                             style={{ fontSize: "0.55rem" }}
-                                            onClick={() => handleBrandChange(b)}
-                                            aria-label={`Remove ${b}`}
+                                            onClick={() => handleBrandChange(id)}
+                                            aria-label={`Remove brand ${id}`}
                                         />
-                  </span>
+                                    </span>
                                 ))}
 
                                 {(minPrice > 0 || maxPrice > 0) && (
                                     <span className="badge bg-secondary">
-                    ৳{minPrice} – ৳{maxPrice}
-                  </span>
+                                        ৳{minPrice} – ৳{maxPrice}
+                                    </span>
                                 )}
 
                                 {sortOption && (
                                     <span className="badge bg-secondary d-flex align-items-center gap-1">
-                    {SORT_OPTIONS.find((o) => o.value === sortOption)?.label}
+                                        {SORT_OPTIONS.find((o) => o.value === sortOption)?.label}
                                         <button
                                             className="btn-close btn-close-white"
                                             style={{ fontSize: "0.55rem" }}
                                             onClick={() => dispatch(setSortOption(""))}
                                             aria-label="Remove sort"
                                         />
-                  </span>
+                                    </span>
                                 )}
 
                                 <button
