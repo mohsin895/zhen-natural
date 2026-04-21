@@ -181,11 +181,12 @@ const Contact: React.FC = () => {
                     <Col lg={6} sm={12}>
                         <Fade triggerOnce direction="up" duration={1000} delay={600}>
                             <div className="bb-contact-maps">
+                               
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d929.6923186886103!2d72.9043573711624!3d21.240995949535076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1718947386404!5m2!1sen!2sin"
+                                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d912.8669751382362!2d90.396552!3d23.766347!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c7a414ea5261%3A0xcd67feff5e2cfcd4!2z4Kaw4oCN4KeN4Kav4Ka-4KaC4Ka4IOCmuOCnh-CmqOCnjeCmn-CmvuCmsA!5e0!3m2!1sbn!2sbd!4v1731583145575!5m2!1sbn!2sbd"
                                     loading="lazy"
-                                    style={{ width: '100%', height: '400px', border: 0 }}
-                                ></iframe>
+                                    style={{width: '100%', height: '400px', border: 0}}
+                                    referrerPolicy="no-referrer-when-downgrade"></iframe>
                             </div>
                         </Fade>
                     </Col>
