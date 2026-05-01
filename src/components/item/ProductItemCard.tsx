@@ -151,12 +151,13 @@ const ProductItemCard = ({ data }: any) => {
               style={isOutOfStock ? { filter: "grayscale(60%)" } : {}}
             >
               <img
-                className="w-full h-full object-cover"
+                className="w-full h-[260px] object-cover"
+                style={{ height: "260px" }}
                 src={data.image}
                 alt={data.title}
               />
               <img
-                className="hover-img w-full h-full object-cover"
+                className="hover-img w-full h-[260px] object-cover"
                 src={data.imageTwo}
                 alt={data.title}
               />
