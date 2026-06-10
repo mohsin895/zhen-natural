@@ -6,8 +6,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Fade } from "react-awesome-reveal";
 import { Col, Form, InputGroup, Row } from "react-bootstrap";
+import ReCAPTCHA from "react-google-recaptcha";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
+
+import Link from "next/link";
 import DiscountCoupon from "../discount-coupon/DiscountCoupon";
 import { showErrorToast, showSuccessToast } from "../toast-popup/Toastify";
 
@@ -21,19 +24,19 @@ interface FormValues {
 
 const Checkout = () => {
   const router = useRouter();
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
   const cartSlice = useSelector((state: RootState) => state.cart?.items);
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+  const [agree, setAgree] = useState(false);
 
   const [subTotal, setSubTotal] = useState(0);
   const [vat, setVat] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [selectedMethod, setSelectedMethod] = useState("free");
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [otpError, setOtpError] = useState("");
-  const [otpValue, setOtpValue] = useState("");
   const [orderLoading, setOrderLoading] = useState(false);
 
   // ── SSL Payment callback ──
@@ -93,46 +96,12 @@ const Checkout = () => {
   const discountAmount = subTotal * (discount / 100);
   const total = subTotal + vat - discountAmount;
 
-  // ── OTP ──
-  const handleSendOtp = async (phone: string) => {
-    if (!phone || phone.trim().length < 10) {
-      setOtpError("সঠিক মোবাইল নম্বর দিন।");
-      return;
-    }
-    setOtpLoading(true);
-    setOtpError("");
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/auth/check-phone-number`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ phone: phone.trim() }),
-        },
-      );
-      const text = await res.text();
-      let data: any = {};
-      try {
-        data = JSON.parse(text);
-      } catch (_) {}
-      if (!res.ok) {
-        setOtpError(data?.message || "OTP পাঠানো যায়নি।");
-        return;
-      }
-      setOtpSent(true);
-      showSuccessToast("OTP পাঠানো হয়েছে!");
-    } catch (_) {
-      setOtpError("ইন্টারনেট সংযোগ চেক করুন।");
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
   // ── Checkout ──
   const handleCheckout = async (values: FormValues) => {
+    if (!agree) {
+      showErrorToast("Please accept Terms & Conditions");
+      return;
+    }
     if (!values.name?.trim()) {
       showErrorToast("নাম দেওয়া আবশ্যক।");
       return;
@@ -143,6 +112,10 @@ const Checkout = () => {
     }
     if (!values.address?.trim()) {
       showErrorToast("ঠিকানা দেওয়া আবশ্যক।");
+      return;
+    }
+    if (!captchaToken) {
+      showErrorToast("Please verify that you are not a robot.");
       return;
     }
 
@@ -159,13 +132,13 @@ const Checkout = () => {
       email: values.email?.trim() || "",
       phone: values.phone.trim(),
       address: values.address.trim(),
-      otp: otpValue,
       shipping_method: selectedMethod,
       sub_total: subTotal,
       delivery_charge: vat,
       discount: discountAmount,
       total: total,
       items: orderItems,
+      captcha_token: captchaToken,
     };
 
     setOrderLoading(true);
@@ -344,97 +317,22 @@ const Checkout = () => {
 
       <section className="section-checkout padding-tb-50">
         <div className="container">
+          <h2>
+            Your Cart
+            <span
+              style={{
+                display: "block",
+                fontSize: "18px",
+                margin: "10px 0",
+                color: "#666",
+                fontWeight: 500,
+              }}
+            >
+              There are {cartSlice.length} products in your cart
+            </span>
+          </h2>
           <Row className="mb-minus-24">
             {/* ── Summary Sidebar ── */}
-            <Col lg={4} sm={12} className="mb-24">
-              <div className="bb-checkout-sidebar">
-                <Fade triggerOnce direction="up" duration={1000} delay={200}>
-                  <div className="checkout-items">
-                    <div className="sub-title">
-                      <h4>Summary</h4>
-                    </div>
-                    <div className="checkout-summary">
-                      <ul>
-                        <li>
-                          <span className="left-item">Sub-total</span>
-                          <span>BDT {subTotal.toFixed(2)}</span>
-                        </li>
-                        <li>
-                          <span className="left-item">Delivery Charges</span>
-                          <span>BDT {vat.toFixed(2)}</span>
-                        </li>
-                        <li>
-                          <span className="left-item">Coupon Discount</span>
-                          <span>
-                            <a
-                              onClick={(e) => e.preventDefault()}
-                              href="#"
-                              className="apply drop-coupon"
-                            >
-                              Apply Coupon
-                            </a>
-                          </span>
-                        </li>
-                        <DiscountCoupon
-                          onDiscountApplied={handleDiscountApplied}
-                        />
-                      </ul>
-                      <div className="summary-total">
-                        <ul>
-                          <li>
-                            <span className="text-left">Total Amount</span>
-                            <span className="text-right">
-                              BDT {total.toFixed(2)}
-                            </span>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div className="bb-checkout-pro">
-                      {cartSlice.map((data: any, index: any) => (
-                        <div key={index} className="pro-items">
-                          <div className="image">
-                            <img
-                              src={
-                                data.image ||
-                                `${process.env.NEXT_PUBLIC_PATH}/${data.image?.file_name}`
-                              }
-                              alt={data.title}
-                              onError={(e: any) => {
-                                e.currentTarget.src = " ";
-                              }}
-                            />
-                          </div>
-                          <div className="items-contact">
-                            <h4>
-                              <a onClick={(e) => e.preventDefault()} href="#">
-                                {data.title}
-                              </a>
-                            </h4>
-                            <div className="inner-price">
-                              <span className="new-price">
-                                BDT {data.newPrice}
-                              </span>
-                              <span className="old-price">
-                                BDT {data.oldPrice}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div
-                    className="about-order border border-1 px-3 py-4 rounded"
-                    style={{ marginTop: "16px" }}
-                  >
-                    <h5>Add Comments About Your Order</h5>
-                    <textarea name="your-comment" placeholder="comment" />
-                  </div>
-                </Fade>
-              </div>
-            </Col>
 
             {/* ── Billing Form ── */}
             <Col lg={8} sm={12} className="mb-24">
@@ -457,51 +355,19 @@ const Checkout = () => {
                         <Form>
                           <Row>
                             {/* Phone + OTP Send */}
-                            <Col sm={12}>
+                            <Col lg={6} sm={12}>
                               <Form.Group className="input-item">
                                 <label>Phone *</label>
-                                <div className="phone-row">
-                                  <Form.Control
-                                    type="text"
-                                    name="phone"
-                                    placeholder="01XXXXXXXXX"
-                                    value={values.phone}
-                                    isInvalid={!!errors.phone}
-                                    onChange={(e) => {
-                                      handleChange(e);
-                                      setOtpSent(false);
-                                      setOtpError("");
-                                      setOtpValue("");
-                                    }}
-                                  />
-                                  <button
-                                    type="button"
-                                    className={`btn-send-otp${otpSent ? " sent" : ""}`}
-                                    disabled={
-                                      otpLoading || otpSent || !values.phone
-                                    }
-                                    onClick={() => handleSendOtp(values.phone)}
-                                  >
-                                    {otpLoading
-                                      ? "পাঠানো হচ্ছে..."
-                                      : otpSent
-                                        ? "Sent ✓"
-                                        : "OTP পাঠাও"}
-                                  </button>
-                                </div>
-                                {!otpSent && !otpLoading && (
-                                  <span className="otp-hint">
-                                    নম্বর দিয়ে OTP পাঠাও ক্লিক করুন
-                                  </span>
-                                )}
-                                {otpSent && (
-                                  <span className="otp-sent-badge">
-                                    📩 OTP পাঠানো হয়েছে — নিচে কোড লিখুন
-                                  </span>
-                                )}
-                                {otpError && (
-                                  <span className="otp-error">{otpError}</span>
-                                )}
+
+                                <Form.Control
+                                  type="text"
+                                  name="phone"
+                                  placeholder="01XXXXXXXXX"
+                                  value={values.phone}
+                                  isInvalid={!!errors.phone}
+                                  onChange={handleChange}
+                                />
+
                                 <Form.Control.Feedback type="invalid">
                                   {errors.phone}
                                 </Form.Control.Feedback>
@@ -526,46 +392,6 @@ const Checkout = () => {
                                   </Form.Control.Feedback>
                                 </InputGroup>
                               </Form.Group>
-                            </Col>
-
-                            {/* OTP Input */}
-                            <Col lg={6} sm={12}>
-                              <div className="otp-input-wrap input-item">
-                                <label>
-                                  OTP কোড{" "}
-                                  {!otpSent && (
-                                    <span
-                                      style={{
-                                        color: "#aaa",
-                                        fontWeight: 400,
-                                        fontSize: "11px",
-                                        marginLeft: "6px",
-                                      }}
-                                    >
-                                      (আগে OTP পাঠান)
-                                    </span>
-                                  )}
-                                </label>
-                                <input
-                                  type="text"
-                                  inputMode="numeric"
-                                  pattern="[0-9]*"
-                                  maxLength={6}
-                                  placeholder={otpSent ? "OTP কোড লিখুন" : "——"}
-                                  value={otpValue}
-                                  disabled={!otpSent}
-                                  onChange={(e) =>
-                                    setOtpValue(
-                                      e.target.value.replace(/\D/g, ""),
-                                    )
-                                  }
-                                  style={{
-                                    borderColor: otpSent
-                                      ? "#0ed7ff"
-                                      : "#ced4da",
-                                  }}
-                                />
-                              </div>
                             </Col>
 
                             {/* Email */}
@@ -741,6 +567,76 @@ const Checkout = () => {
                                 </div>
                               </Fade>
                             </Col>
+                            <Col sm={12}>
+                              <div className="mb-3">
+                                {siteKey ? (
+                                  <ReCAPTCHA
+                                    sitekey={siteKey}
+                                    onChange={(token) => setCaptchaToken(token)}
+                                  />
+                                ) : (
+                                  <div>reCAPTCHA not configured</div>
+                                )}
+                              </div>
+                            </Col>
+                            <Col sm={12}>
+                              <div
+                                style={{
+                                  marginTop: "15px",
+                                  fontSize: "14px",
+                                  color: "#555",
+                                }}
+                              >
+                                <label
+                                  style={{
+                                    display: "flex",
+                                    gap: "2px",
+                                    alignItems: "flex-start",
+                                    justifyItems: "center",
+                                    // alignItems: "center",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={agree}
+                                    onChange={(e) => setAgree(e.target.checked)}
+                                    style={{ width: "40px" }}
+                                  />
+
+                                  <span>
+                                    I agree to the{" "}
+                                    <Link
+                                      href="/terms"
+                                      className="checkout-link"
+                                    >
+                                      Terms and Conditions
+                                    </Link>
+                                    ,{" "}
+                                    <Link
+                                      href="/privacy-policy"
+                                      className="checkout-link"
+                                    >
+                                      Privacy Policy
+                                    </Link>
+                                    ,{" "}
+                                    <Link
+                                      href="/shipping-delivery"
+                                      className="checkout-link"
+                                    >
+                                      Shipping & Delivery
+                                    </Link>
+                                    ,{" "}
+                                    <Link
+                                      href="/return-and-refund-policy"
+                                      className="checkout-link"
+                                    >
+                                      Returns & Exchanges
+                                    </Link>
+                                  </span>
+                                </label>
+                              </div>
+                            </Col>
 
                             {/* Submit */}
                             <Col sm={12}>
@@ -748,7 +644,7 @@ const Checkout = () => {
                                 <button
                                   type="button"
                                   className="bb-btn-2"
-                                  disabled={orderLoading}
+                                  disabled={orderLoading || !agree}
                                   onClick={() => handleCheckout(values)}
                                 >
                                   {orderLoading
@@ -768,6 +664,95 @@ const Checkout = () => {
                   </div>
                 </div>
               </Fade>
+            </Col>
+            <Col lg={4} sm={12} className="mb-24">
+              <div className="bb-checkout-sidebar">
+                <Fade triggerOnce direction="up" duration={1000} delay={200}>
+                  <div className="checkout-items">
+                    <div className="sub-title">
+                      <h4>Summary</h4>
+                    </div>
+                    <div className="checkout-summary">
+                      <ul>
+                        <li>
+                          <span className="left-item">Sub-total</span>
+                          <span>BDT {subTotal.toFixed(2)}</span>
+                        </li>
+                        <li>
+                          <span className="left-item">Delivery Charges</span>
+                          <span>BDT {vat.toFixed(2)}</span>
+                        </li>
+                        <li>
+                          <span className="left-item">Coupon Discount</span>
+                          <span>
+                            <a
+                              onClick={(e) => e.preventDefault()}
+                              href="#"
+                              className="apply drop-coupon"
+                            >
+                              Apply Coupon
+                            </a>
+                          </span>
+                        </li>
+                        <DiscountCoupon
+                          onDiscountApplied={handleDiscountApplied}
+                        />
+                      </ul>
+                      <div className="summary-total">
+                        <ul>
+                          <li>
+                            <span className="text-left">Total Amount</span>
+                            <span className="text-right">
+                              BDT {total.toFixed(2)}
+                            </span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bb-checkout-pro">
+                      {cartSlice.map((data: any, index: any) => (
+                        <div key={index} className="pro-items">
+                          <div className="image">
+                            <img
+                              src={
+                                data.image ||
+                                `${process.env.NEXT_PUBLIC_PATH}/${data.image?.file_name}`
+                              }
+                              alt={data.title}
+                              onError={(e: any) => {
+                                e.currentTarget.src = " ";
+                              }}
+                            />
+                          </div>
+                          <div className="items-contact">
+                            <h4>
+                              <a onClick={(e) => e.preventDefault()} href="#">
+                                {data.title}
+                              </a>
+                            </h4>
+                            <div className="inner-price">
+                              <span className="new-price">
+                                BDT {data.newPrice}
+                              </span>
+                              <span className="old-price">
+                                BDT {data.oldPrice}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div
+                    className="about-order border border-1 px-3 py-4 rounded"
+                    style={{ marginTop: "16px" }}
+                  >
+                    <h5>Add Comments About Your Order</h5>
+                    <textarea name="your-comment" placeholder="comment" />
+                  </div>
+                </Fade>
+              </div>
             </Col>
           </Row>
         </div>

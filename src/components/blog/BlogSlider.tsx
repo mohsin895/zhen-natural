@@ -40,7 +40,7 @@ const BlogSlider: React.FC<BlogSliderProps> = ({ hasPaginate = false }) => {
   }, []);
 
   // if (error) return <div>Failed to load blogs</div>;
-   if (!data) return <div></div>;
+  if (!data) return <div></div>;
 
   const blogs: Blog[] = data.blogs.data;
   const formatDate = (dateStr: string) => {
@@ -73,8 +73,8 @@ const BlogSlider: React.FC<BlogSliderProps> = ({ hasPaginate = false }) => {
     <>
       <style>{`
                 .section-blog {
-                    padding-top: 100px;
-                    padding-bottom: 70px;
+                    padding-top: 20px;
+                    padding-bottom: 50px;
                     background: #fff;
                 }
 

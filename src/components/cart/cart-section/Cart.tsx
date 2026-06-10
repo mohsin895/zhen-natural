@@ -85,77 +85,35 @@ const Cart: React.FC = () => {
     <>
       <section className="section-cart padding-tb-50">
         <div className="container">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "20px",
+              flexWrap: "wrap",
+              gap: "10px",
+            }}
+          >
+            <div>
+              <h2>Your Cart</h2>
+              <span
+                style={{
+                  display: "block",
+                  fontSize: "18px",
+                  color: "#666",
+                  fontWeight: 500,
+                }}
+              >
+                There are {cartSlice.length} products in your cart
+              </span>
+            </div>
+
+            <Link href="/all-products" className="bb-btn-2">
+              Continue Shopping
+            </Link>
+          </div>
           <Row className="mb-minus-24">
-            {/* Summary Sidebar */}
-            <Col lg={4} className="mb-24">
-              <Fade triggerOnce direction="up" duration={1000} delay={200}>
-                <div className="bb-cart-sidebar-block">
-                  <div className="bb-sb-title">
-                    <h3>Summary</h3>
-                  </div>
-                  <div className="bb-sb-blok-contact">
-                    <div className="bb-cart-summary">
-                      <div className="inner-summary">
-                        <ul>
-                          <li>
-                            <span className="text-left">Sub-Total</span>
-                            <span className="text-right">
-                              BDT {subTotal.toFixed(2)}
-                            </span>
-                          </li>
-                          <li>
-                            <span className="text-left">Coupon Discount</span>
-                            <span className="text-right">
-                              <a className="bb-coupon drop-coupon">
-                                Apply Coupon
-                              </a>
-                            </span>
-                          </li>
-                          <DiscountCoupon
-                            onDiscountApplied={handleDiscountApplied}
-                          />
-                        </ul>
-                      </div>
-
-                      {/* Discount Display */}
-                      {discount > 0 && (
-                        <div className="summary-discount">
-                          <ul>
-                            <li>
-                              <span className="text-left">
-                                Discount ({discount}%)
-                              </span>
-                              <span className="text-right">
-                                -BDT {discountAmount.toFixed(2)}
-                              </span>
-                            </li>
-                          </ul>
-                        </div>
-                      )}
-
-                      <div className="summary-total">
-                        <ul>
-                          <li>
-                            <span className="text-left">Total Amount</span>
-                            <span
-                              className="text-right"
-                              style={{
-                                fontSize: "18px",
-                                fontWeight: "bold",
-                                color: "#42A590",
-                              }}
-                            >
-                              BDT {total.toFixed(2)}
-                            </span>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Fade>
-            </Col>
-
             {/* Cart Table */}
             <Col lg={8} className="mb-24">
               <Fade
@@ -283,6 +241,75 @@ const Cart: React.FC = () => {
                   </div>
                 </Fade>
               )}
+            </Col>
+            {/* Summary Sidebar */}
+            <Col lg={4} className="mb-24">
+              <Fade triggerOnce direction="up" duration={1000} delay={200}>
+                <div className="bb-cart-sidebar-block">
+                  <div className="bb-sb-title">
+                    <h3>Summary</h3>
+                  </div>
+                  <div className="bb-sb-blok-contact">
+                    <div className="bb-cart-summary">
+                      <div className="inner-summary">
+                        <ul>
+                          <li>
+                            <span className="text-left">Sub-Total</span>
+                            <span className="text-right">
+                              BDT {subTotal.toFixed(2)}
+                            </span>
+                          </li>
+                          <li>
+                            <span className="text-left">Coupon Discount</span>
+                            <span className="text-right">
+                              <a className="bb-coupon drop-coupon">
+                                Apply Coupon
+                              </a>
+                            </span>
+                          </li>
+                          <DiscountCoupon
+                            onDiscountApplied={handleDiscountApplied}
+                          />
+                        </ul>
+                      </div>
+
+                      {/* Discount Display */}
+                      {discount > 0 && (
+                        <div className="summary-discount">
+                          <ul>
+                            <li>
+                              <span className="text-left">
+                                Discount ({discount}%)
+                              </span>
+                              <span className="text-right">
+                                -BDT {discountAmount.toFixed(2)}
+                              </span>
+                            </li>
+                          </ul>
+                        </div>
+                      )}
+
+                      <div className="summary-total">
+                        <ul>
+                          <li>
+                            <span className="text-left">Total Amount</span>
+                            <span
+                              className="text-right"
+                              style={{
+                                fontSize: "18px",
+                                fontWeight: "bold",
+                                color: "#42A590",
+                              }}
+                            >
+                              BDT {total.toFixed(2)}
+                            </span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Fade>
             </Col>
           </Row>
         </div>

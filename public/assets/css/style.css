@@ -785,11 +785,11 @@ a.back-to-top svg path {
 }
 
 .padding-tb-50 {
-  padding: 50px 0;
+  padding: 20px 0;
 }
 
 .padding-t-50 {
-  padding: 50px 0 0 0;
+  padding: 40px 0 0 0;
 }
 
 .padding-b-50 {
@@ -801,7 +801,7 @@ a.back-to-top svg path {
 }
 
 .margin-tb-100 {
-  margin: 100px 0;
+  margin: 60px 0;
 }
 
 .margin-tb-50 {
@@ -4224,7 +4224,6 @@ button.btn-close.qty_close {
 /* Layouts ( Import Layouts ) */
 /* Hero */
 .section-hero {
-
   position: relative;
   background-color: #f8f8fb;
   overflow: hidden;
@@ -5089,7 +5088,7 @@ button.btn-close.qty_close {
 }
 .bb-pro-box .bb-pro-contact {
   padding: 20px;
-    height: 185px;
+  height: 185px;
 }
 .bb-pro-box .bb-pro-contact .bb-pro-subtitle {
   margin-bottom: 8px;
@@ -6279,7 +6278,14 @@ ul.bb-vendors-tab-nav li a.active .bb-vendors-box .inner-heading h5 {
   -webkit-transform: scale(3) rotate(50deg);
   transform: scale(3) rotate(50deg);
 }
+.checkout-link {
+  color: #6bcdf5;
+  font-weight: 500;
+}
 
+.checkout-link:hover {
+  text-decoration: underline;
+}
 /* Responsive footer css */
 @media only screen and (max-width: 991px) {
   .section-instagram .bb-title {
@@ -9255,6 +9261,9 @@ ul.bb-shop-tags li.active-tags a {
   -webkit-box-pack: center;
   -ms-flex-pack: center;
   justify-content: center;
+}
+.bb-instagram-slider .swiper-wrapper {
+  transition-timing-function: linear !important;
 }
 .section-track .bb-progress li {
   width: calc(20% - 24px);
