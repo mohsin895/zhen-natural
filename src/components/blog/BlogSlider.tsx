@@ -165,7 +165,7 @@ const BlogSlider: React.FC<BlogSliderProps> = ({ hasPaginate = false }) => {
                       "linear-gradient(to right, #0ed7ff 8%, #82bc23 14%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
-                    fontSize: "48px",
+                    fontSize: "38px",
                   }}
                 >
                   The Blog

@@ -147,17 +147,16 @@ const ProductItemCard = ({ data }: any) => {
 
           <Link href={`/details/${data.slug}`}>
             <div
-              className="inner-img h-[220px] overflow-hidden"
+              className="inner-img h-[180px] sm:h-[220px] md:h-[260px] overflow-hidden"
               style={isOutOfStock ? { filter: "grayscale(60%)" } : {}}
             >
               <img
-                className="w-full h-[260px] object-cover"
-                style={{ height: "260px" }}
+                className="w-full h-full object-cover object-center"
                 src={data.image}
                 alt={data.title}
               />
               <img
-                className="hover-img w-full h-[260px] object-cover"
+                className="hover-img w-full h-full object-cover object-center"
                 src={data.imageTwo}
                 alt={data.title}
               />

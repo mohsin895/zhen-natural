@@ -86,7 +86,7 @@ const SocialMediaGallery: React.FC<BrandsProps> = ({
                     "linear-gradient(to right, #0ed7ff 8%, #82bc23 14%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  fontSize: "42px",
+                  fontSize: "38px",
                   marginBlock: "16px",
                 }}
               >

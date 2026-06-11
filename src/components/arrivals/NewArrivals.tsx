@@ -32,7 +32,13 @@ const NewArrivals = () => {
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error("Failed to fetch products");
         const result = await res.json();
-        const products = result.data.map((item: any) => ({
+
+        const filteredProducts = result.data.filter(
+          (item: any) =>
+            Number(item.has_combo) !== 1 && Number(item.has_upcoming) !== 1,
+        );
+
+        const products = filteredProducts.map((item: any) => ({
           id: item.id,
           title: item.name,
           newPrice: item.main_price,

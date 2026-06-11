@@ -28,7 +28,7 @@ const Checkout = () => {
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
   const cartSlice = useSelector((state: RootState) => state.cart?.items);
-  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+  const siteKey = "6Le1SxktAAAAAO0vuM1eQyfnm0t66HZU_kMfdhxV";
 
   const [agree, setAgree] = useState(false);
 
@@ -138,7 +138,7 @@ const Checkout = () => {
       discount: discountAmount,
       total: total,
       items: orderItems,
-      captcha_token: captchaToken,
+      // captcha_token: captchaToken,
     };
 
     setOrderLoading(true);
@@ -302,6 +302,15 @@ const Checkout = () => {
         .otp-error { font-size: 12px; color: #dc3545; margin-top: 5px; display: block; }
         .otp-sent-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #4caf50; font-weight: 600; margin-top: 6px; }
         .payment-options { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
+        @media (max-width: 768px) {
+  .payment-options {
+    display: grid;
+  }
+    .payment-card{
+    display: grid;
+    }
+}
+        
         .payment-card { flex: 1; min-width: 160px; border: 2px solid #e0e0e0; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s; background: #fff; user-select: none; }
         .payment-card:hover { border-color: #82bc23; background: #f9ffe9; }
         .payment-card.active { border-color: #82bc23; background: #f4ffe1; box-shadow: 0 2px 10px rgba(130,188,35,0.18); }
@@ -568,7 +577,7 @@ const Checkout = () => {
                               </Fade>
                             </Col>
                             <Col sm={12}>
-                              <div className="mb-3">
+                              <div className="my-3">
                                 {siteKey ? (
                                   <ReCAPTCHA
                                     sitekey={siteKey}
@@ -590,10 +599,7 @@ const Checkout = () => {
                                 <label
                                   style={{
                                     display: "flex",
-                                    gap: "2px",
-                                    alignItems: "flex-start",
-                                    justifyItems: "center",
-                                    // alignItems: "center",
+                                    gap: "6px",
                                     justifyContent: "center",
                                   }}
                                 >
@@ -601,10 +607,10 @@ const Checkout = () => {
                                     type="checkbox"
                                     checked={agree}
                                     onChange={(e) => setAgree(e.target.checked)}
-                                    style={{ width: "40px" }}
+                                    style={{ width: "16px" }}
                                   />
 
-                                  <span>
+                                  <span className="-mt-10">
                                     I agree to the{" "}
                                     <Link
                                       href="/terms"

@@ -1,17 +1,15 @@
 "use client";
 import NewArrivals from "@/components/arrivals/NewArrivals";
-import BannerOne from "@/components/banner/BannerOne";
-import BannerTwo from "@/components/banner/BannerTwo";
 import BlogSlider from "@/components/blog/BlogSlider";
+import Brands from "@/components/brands";
 import ExploreCategory from "@/components/category/ExploreCategory";
+import ComboProducts from "@/components/Combo Products/ComboProducts";
 import DealSlider from "@/components/deal-slider/DealSlider";
 import HeroSlider from "@/components/hero/HeroSlider";
-import Instagram from "@/components/instagram/Instagram";
 import Services from "@/components/services/Services";
-import Testimonials from "@/components/testimonials/Testimonials";
-import TopVendor from "@/components/top-vendor/TopVendor";
-import Brands from "@/components/brands";
 import SocialMediaGallery from "@/components/SocialMediaGallery";
+import TopVendor from "@/components/top-vendor/TopVendor";
+import UpcomingProducts from "@/components/Upcoming Products/UpcomingProducts";
 
 export default function Home() {
   return (
@@ -22,10 +20,12 @@ export default function Home() {
 
       {/*<BannerTwo />*/}
       <NewArrivals />
+      <ComboProducts />
+      <UpcomingProducts />
       <Services />
       <TopVendor />
-        <SocialMediaGallery />
-         <Brands />
+      <SocialMediaGallery />
+      <Brands />
       <BlogSlider />
       {/*<Instagram />*/}
     </>
