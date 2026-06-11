@@ -98,7 +98,7 @@ const NewArrivals = () => {
     );
 
   return (
-    <section className="section-product-tabs padding-tb-50">
+    <section className="section-product-tabs ">
       <div className="container">
         {/*  Section Title */}
         <Row className="mb-4">
