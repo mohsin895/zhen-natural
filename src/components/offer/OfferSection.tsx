@@ -43,7 +43,7 @@ export default function OfferSection({ slug }: { slug: string }) {
     <section className="py-10 px-4 bg-gray-50">
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {formattedProducts.map((item: any, idx: number) => (
-          <div className="">
+          <div className="" key={idx}>
             <ProductItemCard key={item.id || idx} data={item} />
           </div>
         ))}

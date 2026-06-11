@@ -43,8 +43,10 @@ const Checkout = () => {
   useEffect(() => {
     const paymentStatus = searchParams?.get("payment");
     if (!paymentStatus) return;
+
     const pendingOrder = localStorage.getItem("pending_ssl_order");
     if (!pendingOrder) return;
+
     const order = JSON.parse(pendingOrder);
 
     if (paymentStatus === "success") {
@@ -63,7 +65,7 @@ const Checkout = () => {
       showErrorToast("পেমেন্ট বাতিল করা হয়েছে।");
       router.replace("/checkout");
     }
-  }, [searchParams]);
+  }, [searchParams, dispatch, router]);
 
   // ── Subtotal ──
   const parsePrice = (price: any) => {
@@ -776,12 +778,10 @@ export const useLoadOrders = () => {
       const loginUser = JSON.parse(localStorage.getItem("login_user") || "{}");
 
       if (loginUser?.uid) {
-        // Logged-in user
         const storedOrders = JSON.parse(localStorage.getItem("orders") || "{}");
         const userOrders = storedOrders[loginUser.uid] || [];
         if (userOrders.length > 0) dispatch(setOrders(userOrders));
       } else {
-        //  Guest user
         const guestOrders = JSON.parse(
           localStorage.getItem("guest_orders") || "[]",
         );
