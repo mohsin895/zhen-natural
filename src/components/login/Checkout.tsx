@@ -91,7 +91,7 @@ const Checkout = () => {
     setSubTotal(subtotal);
 
     // delivery charge
-    const deliveryCharge = selectedMethod === "free" ? 60 : 120;
+    const deliveryCharge = selectedMethod === "free" ? 60 : 110;
     setVat(deliveryCharge);
   }, [cartSlice, selectedMethod]);
 
@@ -128,6 +128,8 @@ const Checkout = () => {
       price: item.newPrice,
     }));
 
+    const shippingCost = selectedMethod === "free" ? 60 : 110;
+
     const payload = {
       temp_user_id: tempUserId,
       name: values.name.trim(),
@@ -135,12 +137,14 @@ const Checkout = () => {
       phone: values.phone.trim(),
       address: values.address.trim(),
       shipping_method: selectedMethod,
+
       sub_total: subTotal,
-      delivery_charge: vat,
+      shipping_cost: shippingCost,
+
       discount: discountAmount,
-      total: total,
+      total: subTotal + shippingCost - discountAmount,
+
       items: orderItems,
-      // captcha_token: captchaToken,
     };
 
     setOrderLoading(true);
@@ -172,14 +176,13 @@ const Checkout = () => {
       }
 
       // ── COD ──
-      // ── COD ──
       if (paymentMethod === "cod") {
         const orderForStore = {
           orderId: data?.order_id ?? data?.combined_order_id ?? Date.now(),
           shippingMethod:
             selectedMethod === "free"
               ? "ঢাকার ভেতরে (৳60)"
-              : "ঢাকার বাইরে (৳120)",
+              : "ঢাকার বাইরে (৳110)",
           totalItems: cartSlice.reduce(
             (acc: number, item: any) => acc + item.quantity,
             0,
@@ -505,7 +508,7 @@ const Checkout = () => {
                                             name="rate"
                                           />
                                           <label htmlFor="rate2">
-                                            Rate - ৳120.00
+                                            Rate - ৳110.00
                                           </label>
                                         </div>
                                       </div>
