@@ -713,7 +713,7 @@ const Checkout = () => {
                           <li>
                             <span className="left-item"></span>
                             <span style={{ color: "green", fontWeight: 600 }}>
-                              Free Shipping Active 🎉
+                              Free Shipping Active
                             </span>
                           </li>
                         )}
