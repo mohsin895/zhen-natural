@@ -38,6 +38,13 @@ const Checkout = () => {
   const [selectedMethod, setSelectedMethod] = useState("free");
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
   const [orderLoading, setOrderLoading] = useState(false);
+  const settings = data?.data || [];
+
+  const freeShippingSetting = settings.find(
+    (item: any) => item.type === "free_shipping",
+  );
+
+  const isFreeShippingEnabled = freeShippingSetting?.value === "1";
 
   // ── SSL Payment callback ──
   useEffect(() => {
@@ -90,8 +97,12 @@ const Checkout = () => {
 
     setSubTotal(subtotal);
 
-    // delivery charge
-    const deliveryCharge = selectedMethod === "free" ? 60 : 110;
+    let deliveryCharge = 0;
+
+    if (!isFreeShippingEnabled) {
+      deliveryCharge = selectedMethod === "free" ? 60 : 110;
+    }
+
     setVat(deliveryCharge);
   }, [cartSlice, selectedMethod]);
 
@@ -128,7 +139,11 @@ const Checkout = () => {
       price: item.newPrice,
     }));
 
-    const shippingCost = selectedMethod === "free" ? 60 : 110;
+    let shippingCost = 0;
+
+    if (!isFreeShippingEnabled) {
+      shippingCost = selectedMethod === "free" ? 60 : 110;
+    }
 
     const payload = {
       temp_user_id: tempUserId,
@@ -693,6 +708,15 @@ const Checkout = () => {
                           <span className="left-item">Delivery Charges</span>
                           <span>BDT {vat.toFixed(2)}</span>
                         </li>
+
+                        {isFreeShippingEnabled && (
+                          <li>
+                            <span className="left-item"></span>
+                            <span style={{ color: "green", fontWeight: 600 }}>
+                              Free Shipping Active 🎉
+                            </span>
+                          </li>
+                        )}
                         <li>
                           <span className="left-item">Coupon Discount</span>
                           <span>
