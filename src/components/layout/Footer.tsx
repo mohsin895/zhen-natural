@@ -247,11 +247,7 @@ const Footer: React.FC<FooterProps> = ({
                         <li>
                           <Link href="/yoga">Yoga</Link>
                         </li>
-                        <li>
-                          <Link href="/product-left-sidebar">
-                            Affiliate Program
-                          </Link>
-                        </li>
+
                         <li>
                           <Link href="/checkout">Payments</Link>
                         </li>

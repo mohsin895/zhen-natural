@@ -102,7 +102,7 @@ const RecipeSlugPage = () => {
       <Breadcrumb title={pageTitle} />
 
       <section style={{ padding: "50px 0" }}>
-        <div recipe-layout>
+        <div className="recipe-layout">
           {/* ── Sidebar ── */}
           <aside className="recipe-sidebar">
             <div
@@ -241,10 +241,58 @@ const RecipeSlugPage = () => {
       </section>
 
       <style>{`
-                @keyframes pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.4; }
-                }
+              @keyframes pulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: .4; }
+}
+
+.recipe-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.recipe-content {
+  min-width: 0;
+}
+
+.recipe-sidebar {
+  height: fit-content;
+}
+
+/* Tablet */
+@media (max-width: 992px) {
+  .recipe-content > div:first-child {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .recipe-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .recipe-sidebar {
+    order: 1;
+    width: 100%;
+  }
+
+  .recipe-content {
+    order: 2;
+    width: 100%;
+  }
+
+  .recipe-content > div:first-child {
+    grid-template-columns: 1fr !important;
+  }
+}
+
             `}</style>
     </div>
   );
