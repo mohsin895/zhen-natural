@@ -15,6 +15,10 @@ interface OrderItem {
   tax?: number | string;
   discount?: number | string;
 
+  thumbnail_image?: string;
+  image?: string;
+  photo?: string;
+
   product?: {
     name?: string;
     thumbnail?: {

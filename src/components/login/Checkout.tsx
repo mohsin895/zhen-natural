@@ -38,14 +38,28 @@ const Checkout = () => {
   const [selectedMethod, setSelectedMethod] = useState("free");
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
   const [orderLoading, setOrderLoading] = useState(false);
-  const settings = data?.data || [];
+
+  const [settings, setSettings] = useState<any[]>([]);
 
   const freeShippingSetting = settings.find(
     (item: any) => item.type === "free_shipping",
   );
 
   const isFreeShippingEnabled = freeShippingSetting?.value === "1";
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/settings`);
+        const data = await res.json();
 
+        setSettings(data?.data || []);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    loadSettings();
+  }, []);
   // ── SSL Payment callback ──
   useEffect(() => {
     const paymentStatus = searchParams?.get("payment");
