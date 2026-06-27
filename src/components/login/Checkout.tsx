@@ -24,70 +24,55 @@ interface FormValues {
 }
 
 const Checkout = () => {
-  const router = useRouter();
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-  const dispatch = useDispatch();
-  const cartSlice = useSelector((state: RootState) => state.cart?.items);
-  const siteKey = "6Le1SxktAAAAAO0vuM1eQyfnm0t66HZU_kMfdhxV";
+    const router = useRouter();
+    const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+    const searchParams = useSearchParams();
+    const dispatch = useDispatch();
+    const cartSlice = useSelector((state: RootState) => state.cart?.items);
+    const siteKey = "6Le1SxktAAAAAO0vuM1eQyfnm0t66HZU_kMfdhxV";
 
-  const [agree, setAgree] = useState(false);
+    const [agree, setAgree] = useState(false);
 
-  const [subTotal, setSubTotal] = useState(0);
-  const [vat, setVat] = useState(0);
-  const [discount, setDiscount] = useState(0);
-  const [selectedMethod, setSelectedMethod] = useState("free");
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
-  const [orderLoading, setOrderLoading] = useState(false);
+    const [subTotal, setSubTotal] = useState(0);
+    const [vat, setVat] = useState(0);
+    const [discount, setDiscount] = useState(0);
+    const [selectedMethod, setSelectedMethod] = useState("free");
+    const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
+    const [orderLoading, setOrderLoading] = useState(false);
 
-  const [settings, setSettings] = useState<any[]>([]);
+    const [settings, setSettings] = useState<any[]>([]);
 
-  const freeShippingSetting = settings.find(
-    (item: any) => item.type === "free_shipping",
-  );
+    const freeShippingSetting = settings.find(
+        (item: any) => item.type === "free_shipping",
+    );
 
-  const isFreeShippingEnabled = freeShippingSetting?.value === "1";
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/settings`);
-        const data = await res.json();
+    const isFreeShippingEnabled = freeShippingSetting?.value === "1";
+    useEffect(() => {
+        const loadSettings = async () => {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/settings`);
+                const data = await res.json();
 
-        setSettings(data?.data || []);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+                setSettings(data?.data || []);
+            } catch (error) {
+                console.error(error);
+            }
+        };
 
-    loadSettings();
-  }, []);
-  // ── SSL Payment callback ──
-  useEffect(() => {
-    const paymentStatus = searchParams?.get("payment");
-    if (!paymentStatus) return;
+        loadSettings();
+    }, []);
 
-    const pendingOrder = localStorage.getItem("pending_ssl_order");
-    if (!pendingOrder) return;
+    // ── FB Pixel: InitiateCheckout on page load (fires once, only when cart has items) ──
+    const initiateCheckoutFired = useRef(false);
+    useEffect(() => {
+        if (initiateCheckoutFired.current) return;
+        if (!cartSlice || cartSlice.length === 0) return;
 
-    const order = JSON.parse(pendingOrder);
-
-    if (paymentStatus === "success") {
-      dispatch(addOrder(order));
-      dispatch(clearCart());
-      localStorage.removeItem("pending_ssl_order");
-      localStorage.removeItem("guest_token");
-      showSuccessToast("পেমেন্ট ও অর্ডার সফল হয়েছে!");
-      router.replace("/orders");
-    } else if (paymentStatus === "failed") {
-      localStorage.removeItem("pending_ssl_order");
-      showErrorToast("পেমেন্ট ব্যর্থ হয়েছে। আবার চেষ্টা করুন।");
-      router.replace("/checkout");
-    } else if (paymentStatus === "cancelled") {
-      localStorage.removeItem("pending_ssl_order");
-      showErrorToast("পেমেন্ট বাতিল করা হয়েছে।");
-      router.replace("/checkout");
-    }
-  }, [searchParams, dispatch, router]);
+        const value = cartSlice.reduce((acc: number, item: any) => {
+            const price = parsePrice(item?.newPrice);
+            const qty = item?.quantity || 1;
+            return acc + price * qty;
+        }, 0);
 
         fbEvent("InitiateCheckout", {
             content_ids: cartSlice.map((item: any) => item.id),
@@ -111,8 +96,10 @@ const Checkout = () => {
     useEffect(() => {
         const paymentStatus = searchParams?.get("payment");
         if (!paymentStatus) return;
+
         const pendingOrder = localStorage.getItem("pending_ssl_order");
         if (!pendingOrder) return;
+
         const order = JSON.parse(pendingOrder);
 
         if (paymentStatus === "success") {
@@ -144,7 +131,7 @@ const Checkout = () => {
             showErrorToast("পেমেন্ট বাতিল করা হয়েছে।");
             router.replace("/checkout");
         }
-    }, [searchParams]);
+    }, [searchParams, dispatch, router]);
 
     // ── Subtotal ──
     function parsePrice(price: any) {
@@ -167,75 +154,25 @@ const Checkout = () => {
             return acc + price * qty;
         }, 0);
 
-    let deliveryCharge = 0;
+        setSubTotal(subtotal);
 
-    if (!isFreeShippingEnabled) {
-      deliveryCharge = selectedMethod === "free" ? 60 : 110;
-    }
+        let deliveryCharge = 0;
 
-    setVat(deliveryCharge);
-  }, [cartSlice, selectedMethod]);
+        if (!isFreeShippingEnabled) {
+            deliveryCharge = selectedMethod === "free" ? 60 : 110;
+        }
 
-        // delivery charge
-        const deliveryCharge = selectedMethod === "free" ? 60 : 120;
         setVat(deliveryCharge);
-    }, [cartSlice, selectedMethod]);
-
-  // ── Checkout ──
-  const handleCheckout = async (values: FormValues) => {
-    if (!agree) {
-      showErrorToast("Please accept Terms & Conditions");
-      return;
-    }
-    if (!values.name?.trim()) {
-      showErrorToast("নাম দেওয়া আবশ্যক।");
-      return;
-    }
-    if (!values.phone?.trim()) {
-      showErrorToast("মোবাইল নম্বর দেওয়া আবশ্যক।");
-      return;
-    }
-    if (!values.address?.trim()) {
-      showErrorToast("ঠিকানা দেওয়া আবশ্যক।");
-      return;
-    }
-    if (!captchaToken) {
-      showErrorToast("Please verify that you are not a robot.");
-      return;
-    }
-
-    const tempUserId = localStorage.getItem("guest_token") || "";
-    const orderItems = cartSlice.map((item: any) => ({
-      product_id: item.id,
-      quantity: item.quantity,
-      price: item.newPrice,
-    }));
-
-    let shippingCost = 0;
-
-    if (!isFreeShippingEnabled) {
-      shippingCost = selectedMethod === "free" ? 60 : 110;
-    }
-
-    const payload = {
-      temp_user_id: tempUserId,
-      name: values.name.trim(),
-      email: values.email?.trim() || "",
-      phone: values.phone.trim(),
-      address: values.address.trim(),
-      shipping_method: selectedMethod,
-
-      sub_total: subTotal,
-      shipping_cost: shippingCost,
-
-      discount: discountAmount,
-      total: subTotal + shippingCost - discountAmount,
-
-      items: orderItems,
-    };
+    }, [cartSlice, selectedMethod, isFreeShippingEnabled]);
+    const discountAmount = subTotal * (discount / 100);
+    const total = subTotal + vat - discountAmount;
 
     // ── Checkout ──
     const handleCheckout = async (values: FormValues) => {
+        if (!agree) {
+            showErrorToast("Please accept Terms & Conditions");
+            return;
+        }
         if (!values.name?.trim()) {
             showErrorToast("নাম দেওয়া আবশ্যক।");
             return;
@@ -248,6 +185,10 @@ const Checkout = () => {
             showErrorToast("ঠিকানা দেওয়া আবশ্যক।");
             return;
         }
+        if (!captchaToken) {
+            showErrorToast("Please verify that you are not a robot.");
+            return;
+        }
 
         const tempUserId = localStorage.getItem("guest_token") || "";
         const orderItems = cartSlice.map((item: any) => ({
@@ -256,30 +197,27 @@ const Checkout = () => {
             price: item.newPrice,
         }));
 
-      if (!res.ok) {
-        showErrorToast(data?.message || "অর্ডার করা যায়নি।");
-        return;
-      }
+        let shippingCost = 0;
 
-      // ── COD ──
-      if (paymentMethod === "cod") {
-        const orderForStore = {
-          orderId: data?.order_id ?? data?.combined_order_id ?? Date.now(),
-          shippingMethod:
-            selectedMethod === "free"
-              ? "ঢাকার ভেতরে (৳60)"
-              : "ঢাকার বাইরে (৳110)",
-          totalItems: cartSlice.reduce(
-            (acc: number, item: any) => acc + item.quantity,
-            0,
-          ),
-          totalPrice: total.toFixed(2),
-          status: "Pending", // ← Orders page এ filter করছে "Pending" দিয়ে
-          name: values.name,
-          phone: values.phone,
-          address: values.address,
-          items: cartSlice,
-          createdAt: new Date().toISOString(),
+        if (!isFreeShippingEnabled) {
+            shippingCost = selectedMethod === "free" ? 60 : 110;
+        }
+
+        const payload = {
+            temp_user_id: tempUserId,
+            name: values.name.trim(),
+            email: values.email?.trim() || "",
+            phone: values.phone.trim(),
+            address: values.address.trim(),
+            shipping_method: selectedMethod,
+
+            sub_total: subTotal,
+            shipping_cost: shippingCost,
+
+            discount: discountAmount,
+            total: subTotal + shippingCost - discountAmount,
+
+            items: orderItems,
         };
 
         setOrderLoading(true);
@@ -317,7 +255,7 @@ const Checkout = () => {
                     shippingMethod:
                         selectedMethod === "free"
                             ? "ঢাকার ভেতরে (৳60)"
-                            : "ঢাকার বাইরে (৳120)",
+                            : "ঢাকার বাইরে (৳110)",
                     totalItems: cartSlice.reduce(
                         (acc: number, item: any) => acc + item.quantity,
                         0,
@@ -339,7 +277,7 @@ const Checkout = () => {
                 fbEvent("Purchase", {
                     content_ids: orderItems.map((item: any) => item.product_id),
                     content_type: "product",
-                    value: total,
+                    value: payload.total,
                     currency: "BDT",
                     contents: orderItems.map((item: any) => ({
                         id: item.product_id,
@@ -477,64 +415,64 @@ const Checkout = () => {
         .bb-btn-2:disabled { opacity: 0.65; cursor: not-allowed; }
       `}</style>
 
-      <section className="section-checkout padding-tb-50">
-        <div className="container">
-          <h2>
-            Your Cart
-            <span
-              style={{
-                display: "block",
-                fontSize: "18px",
-                margin: "10px 0",
-                color: "#666",
-                fontWeight: 500,
-              }}
-            >
+            <section className="section-checkout padding-tb-50">
+                <div className="container">
+                    <h2>
+                        Your Cart
+                        <span
+                            style={{
+                                display: "block",
+                                fontSize: "18px",
+                                margin: "10px 0",
+                                color: "#666",
+                                fontWeight: 500,
+                            }}
+                        >
               There are {cartSlice.length} products in your cart
             </span>
-          </h2>
-          <Row className="mb-minus-24">
-            {/* ── Summary Sidebar ── */}
+                    </h2>
+                    <Row className="mb-minus-24">
+                        {/* ── Summary Sidebar ── */}
 
-            {/* ── Billing Form ── */}
-            <Col lg={8} sm={12} className="mb-24">
-              <Fade triggerOnce direction="up" duration={1000} delay={400}>
-                <div className="bb-checkout-contact">
-                  <div className="main-title">
-                    <h4>Billing Details</h4>
-                  </div>
-                  <div className="input-box-form">
-                    <Formik
-                      validationSchema={schema}
-                      onSubmit={() => {}}
-                      initialValues={initialValues}
-                    >
-                      {({
-                        handleChange,
-                        values,
-                        errors,
-                      }: FormikProps<FormValues>) => (
-                        <Form>
-                          <Row>
-                            {/* Phone + OTP Send */}
-                            <Col lg={6} sm={12}>
-                              <Form.Group className="input-item">
-                                <label>Phone *</label>
+                        {/* ── Billing Form ── */}
+                        <Col lg={8} sm={12} className="mb-24">
+                            <Fade triggerOnce direction="up" duration={1000} delay={400}>
+                                <div className="bb-checkout-contact">
+                                    <div className="main-title">
+                                        <h4>Billing Details</h4>
+                                    </div>
+                                    <div className="input-box-form">
+                                        <Formik
+                                            validationSchema={schema}
+                                            onSubmit={() => {}}
+                                            initialValues={initialValues}
+                                        >
+                                            {({
+                                                  handleChange,
+                                                  values,
+                                                  errors,
+                                              }: FormikProps<FormValues>) => (
+                                                <Form>
+                                                    <Row>
+                                                        {/* Phone + OTP Send */}
+                                                        <Col lg={6} sm={12}>
+                                                            <Form.Group className="input-item">
+                                                                <label>Phone *</label>
 
-                                <Form.Control
-                                  type="text"
-                                  name="phone"
-                                  placeholder="01XXXXXXXXX"
-                                  value={values.phone}
-                                  isInvalid={!!errors.phone}
-                                  onChange={handleChange}
-                                />
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    name="phone"
+                                                                    placeholder="01XXXXXXXXX"
+                                                                    value={values.phone}
+                                                                    isInvalid={!!errors.phone}
+                                                                    onChange={handleChange}
+                                                                />
 
-                                <Form.Control.Feedback type="invalid">
-                                  {errors.phone}
-                                </Form.Control.Feedback>
-                              </Form.Group>
-                            </Col>
+                                                                <Form.Control.Feedback type="invalid">
+                                                                    {errors.phone}
+                                                                </Form.Control.Feedback>
+                                                            </Form.Group>
+                                                        </Col>
 
                                                         {/* Name */}
                                                         <Col lg={6} sm={12}>
@@ -556,23 +494,23 @@ const Checkout = () => {
                                                             </Form.Group>
                                                         </Col>
 
-                            {/* Email */}
-                            <Col sm={12}>
-                              <Form.Group className="input-item">
-                                <label>Email *</label>
-                                <Form.Control
-                                  type="email"
-                                  name="email"
-                                  placeholder="someone@gmail.com"
-                                  value={values.email}
-                                  isInvalid={!!errors.email}
-                                  onChange={handleChange}
-                                />
-                                <Form.Control.Feedback type="invalid">
-                                  {errors.email}
-                                </Form.Control.Feedback>
-                              </Form.Group>
-                            </Col>
+                                                        {/* Email */}
+                                                        <Col sm={12}>
+                                                            <Form.Group className="input-item">
+                                                                <label>Email *</label>
+                                                                <Form.Control
+                                                                    type="email"
+                                                                    name="email"
+                                                                    placeholder="someone@gmail.com"
+                                                                    value={values.email}
+                                                                    isInvalid={!!errors.email}
+                                                                    onChange={handleChange}
+                                                                />
+                                                                <Form.Control.Feedback type="invalid">
+                                                                    {errors.email}
+                                                                </Form.Control.Feedback>
+                                                            </Form.Group>
+                                                        </Col>
 
                                                         {/* Address */}
                                                         <Col sm={12}>
@@ -646,25 +584,25 @@ const Checkout = () => {
                                         <span className="bb-del-head">
                                           Out Side Dhaka
                                         </span>
-                                        <div className="radio-itens">
-                                          <input
-                                            checked={selectedMethod === "flat"}
-                                            onChange={handleDeliveryChange}
-                                            value="flat"
-                                            type="radio"
-                                            id="rate2"
-                                            name="rate"
-                                          />
-                                          <label htmlFor="rate2">
-                                            Rate - ৳110.00
-                                          </label>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </Fade>
-                            </Col>
+                                                                                <div className="radio-itens">
+                                                                                    <input
+                                                                                        checked={selectedMethod === "flat"}
+                                                                                        onChange={handleDeliveryChange}
+                                                                                        value="flat"
+                                                                                        type="radio"
+                                                                                        id="rate2"
+                                                                                        name="rate"
+                                                                                    />
+                                                                                    <label htmlFor="rate2">
+                                                                                        Rate - ৳110.00
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </Fade>
+                                                        </Col>
 
                                                         {/* Payment Method */}
                                                         <Col sm={12}>
@@ -729,6 +667,73 @@ const Checkout = () => {
                                                                 </div>
                                                             </Fade>
                                                         </Col>
+                                                        <Col sm={12}>
+                                                            <div className="my-3">
+                                                                {siteKey ? (
+                                                                    <ReCAPTCHA
+                                                                        sitekey={siteKey}
+                                                                        onChange={(token) => setCaptchaToken(token)}
+                                                                    />
+                                                                ) : (
+                                                                    <div>reCAPTCHA not configured</div>
+                                                                )}
+                                                            </div>
+                                                        </Col>
+                                                        <Col sm={12}>
+                                                            <div
+                                                                style={{
+                                                                    marginTop: "15px",
+                                                                    fontSize: "14px",
+                                                                    color: "#555",
+                                                                }}
+                                                            >
+                                                                <label
+                                                                    style={{
+                                                                        display: "flex",
+                                                                        gap: "6px",
+                                                                        justifyContent: "center",
+                                                                    }}
+                                                                >
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={agree}
+                                                                        onChange={(e) => setAgree(e.target.checked)}
+                                                                        style={{ width: "16px" }}
+                                                                    />
+
+                                                                    <span className="-mt-10">
+                                    I agree to the{" "}
+                                                                        <Link
+                                                                            href="/terms"
+                                                                            className="checkout-link"
+                                                                        >
+                                      Terms and Conditions
+                                    </Link>
+                                    ,{" "}
+                                                                        <Link
+                                                                            href="/privacy-policy"
+                                                                            className="checkout-link"
+                                                                        >
+                                      Privacy Policy
+                                    </Link>
+                                    ,{" "}
+                                                                        <Link
+                                                                            href="/shipping-delivery"
+                                                                            className="checkout-link"
+                                                                        >
+                                      Shipping & Delivery
+                                    </Link>
+                                    ,{" "}
+                                                                        <Link
+                                                                            href="/return-and-refund-policy"
+                                                                            className="checkout-link"
+                                                                        >
+                                      Returns & Exchanges
+                                    </Link>
+                                  </span>
+                                                                </label>
+                                                            </div>
+                                                        </Col>
 
                                                         {/* Submit */}
                                                         <Col sm={12}>
@@ -736,7 +741,7 @@ const Checkout = () => {
                                                                 <button
                                                                     type="button"
                                                                     className="bb-btn-2"
-                                                                    disabled={orderLoading}
+                                                                    disabled={orderLoading || !agree}
                                                                     onClick={() => handleCheckout(values)}
                                                                 >
                                                                     {orderLoading
@@ -755,206 +760,111 @@ const Checkout = () => {
                                         </Formik>
                                     </div>
                                 </div>
-                              </Fade>
-                            </Col>
-                            <Col sm={12}>
-                              <div className="my-3">
-                                {siteKey ? (
-                                  <ReCAPTCHA
-                                    sitekey={siteKey}
-                                    onChange={(token) => setCaptchaToken(token)}
-                                  />
-                                ) : (
-                                  <div>reCAPTCHA not configured</div>
-                                )}
-                              </div>
-                            </Col>
-                            <Col sm={12}>
-                              <div
-                                style={{
-                                  marginTop: "15px",
-                                  fontSize: "14px",
-                                  color: "#555",
-                                }}
-                              >
-                                <label
-                                  style={{
-                                    display: "flex",
-                                    gap: "6px",
-                                    justifyContent: "center",
-                                  }}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={agree}
-                                    onChange={(e) => setAgree(e.target.checked)}
-                                    style={{ width: "16px" }}
-                                  />
+                            </Fade>
+                        </Col>
+                        <Col lg={4} sm={12} className="mb-24">
+                            <div className="bb-checkout-sidebar">
+                                <Fade triggerOnce direction="up" duration={1000} delay={200}>
+                                    <div className="checkout-items">
+                                        <div className="sub-title">
+                                            <h4>Summary</h4>
+                                        </div>
+                                        <div className="checkout-summary">
+                                            <ul>
+                                                <li>
+                                                    <span className="left-item">Sub-total</span>
+                                                    <span>BDT {subTotal.toFixed(2)}</span>
+                                                </li>
+                                                <li>
+                                                    <span className="left-item">Delivery Charges</span>
+                                                    <span>BDT {vat.toFixed(2)}</span>
+                                                </li>
 
-                                  <span className="-mt-10">
-                                    I agree to the{" "}
-                                    <Link
-                                      href="/terms"
-                                      className="checkout-link"
-                                    >
-                                      Terms and Conditions
-                                    </Link>
-                                    ,{" "}
-                                    <Link
-                                      href="/privacy-policy"
-                                      className="checkout-link"
-                                    >
-                                      Privacy Policy
-                                    </Link>
-                                    ,{" "}
-                                    <Link
-                                      href="/shipping-delivery"
-                                      className="checkout-link"
-                                    >
-                                      Shipping & Delivery
-                                    </Link>
-                                    ,{" "}
-                                    <Link
-                                      href="/return-and-refund-policy"
-                                      className="checkout-link"
-                                    >
-                                      Returns & Exchanges
-                                    </Link>
-                                  </span>
-                                </label>
-                              </div>
-                            </Col>
-
-                            {/* Submit */}
-                            <Col sm={12}>
-                              <div className="input-button mt-4">
-                                <button
-                                  type="button"
-                                  className="bb-btn-2"
-                                  disabled={orderLoading || !agree}
-                                  onClick={() => handleCheckout(values)}
-                                >
-                                  {orderLoading
-                                    ? paymentMethod === "online"
-                                      ? "Payment..."
-                                      : "Order..."
-                                    : paymentMethod === "online"
-                                      ? "Please Payment"
-                                      : "Please Order"}
-                                </button>
-                              </div>
-                            </Col>
-                          </Row>
-                        </Form>
-                      )}
-                    </Formik>
-                  </div>
-                </div>
-              </Fade>
-            </Col>
-            <Col lg={4} sm={12} className="mb-24">
-              <div className="bb-checkout-sidebar">
-                <Fade triggerOnce direction="up" duration={1000} delay={200}>
-                  <div className="checkout-items">
-                    <div className="sub-title">
-                      <h4>Summary</h4>
-                    </div>
-                    <div className="checkout-summary">
-                      <ul>
-                        <li>
-                          <span className="left-item">Sub-total</span>
-                          <span>BDT {subTotal.toFixed(2)}</span>
-                        </li>
-                        <li>
-                          <span className="left-item">Delivery Charges</span>
-                          <span>BDT {vat.toFixed(2)}</span>
-                        </li>
-
-                        {isFreeShippingEnabled && (
-                          <li>
-                            <span className="left-item"></span>
-                            <span style={{ color: "green", fontWeight: 600 }}>
+                                                {isFreeShippingEnabled && (
+                                                    <li>
+                                                        <span className="left-item"></span>
+                                                        <span style={{ color: "green", fontWeight: 600 }}>
                               Free Shipping Active
                             </span>
-                          </li>
-                        )}
-                        <li>
-                          <span className="left-item">Coupon Discount</span>
-                          <span>
+                                                    </li>
+                                                )}
+                                                <li>
+                                                    <span className="left-item">Coupon Discount</span>
+                                                    <span>
                             <a
-                              onClick={(e) => e.preventDefault()}
-                              href="#"
-                              className="apply drop-coupon"
+                                onClick={(e) => e.preventDefault()}
+                                href="#"
+                                className="apply drop-coupon"
                             >
                               Apply Coupon
                             </a>
                           </span>
-                        </li>
-                        <DiscountCoupon
-                          onDiscountApplied={handleDiscountApplied}
-                        />
-                      </ul>
-                      <div className="summary-total">
-                        <ul>
-                          <li>
-                            <span className="text-left">Total Amount</span>
-                            <span className="text-right">
+                                                </li>
+                                                <DiscountCoupon
+                                                    onDiscountApplied={handleDiscountApplied}
+                                                />
+                                            </ul>
+                                            <div className="summary-total">
+                                                <ul>
+                                                    <li>
+                                                        <span className="text-left">Total Amount</span>
+                                                        <span className="text-right">
                               BDT {total.toFixed(2)}
                             </span>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
 
-                    <div className="bb-checkout-pro">
-                      {cartSlice.map((data: any, index: any) => (
-                        <div key={index} className="pro-items">
-                          <div className="image">
-                            <img
-                              src={
-                                data.image ||
-                                `${process.env.NEXT_PUBLIC_PATH}/${data.image?.file_name}`
-                              }
-                              alt={data.title}
-                              onError={(e: any) => {
-                                e.currentTarget.src = " ";
-                              }}
-                            />
-                          </div>
-                          <div className="items-contact">
-                            <h4>
-                              <a onClick={(e) => e.preventDefault()} href="#">
-                                {data.title}
-                              </a>
-                            </h4>
-                            <div className="inner-price">
+                                        <div className="bb-checkout-pro">
+                                            {cartSlice.map((data: any, index: any) => (
+                                                <div key={index} className="pro-items">
+                                                    <div className="image">
+                                                        <img
+                                                            src={
+                                                                data.image ||
+                                                                `${process.env.NEXT_PUBLIC_PATH}/${data.image?.file_name}`
+                                                            }
+                                                            alt={data.title}
+                                                            onError={(e: any) => {
+                                                                e.currentTarget.src = " ";
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className="items-contact">
+                                                        <h4>
+                                                            <a onClick={(e) => e.preventDefault()} href="#">
+                                                                {data.title}
+                                                            </a>
+                                                        </h4>
+                                                        <div className="inner-price">
                               <span className="new-price">
                                 BDT {data.newPrice}
                               </span>
-                              <span className="old-price">
+                                                            <span className="old-price">
                                 BDT {data.oldPrice}
                               </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div
+                                        className="about-order border border-1 px-3 py-4 rounded"
+                                        style={{ marginTop: "16px" }}
+                                    >
+                                        <h5>Add Comments About Your Order</h5>
+                                        <textarea name="your-comment" placeholder="comment" />
+                                    </div>
+                                </Fade>
                             </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div
-                    className="about-order border border-1 px-3 py-4 rounded"
-                    style={{ marginTop: "16px" }}
-                  >
-                    <h5>Add Comments About Your Order</h5>
-                    <textarea name="your-comment" placeholder="comment" />
-                  </div>
-                </Fade>
-              </div>
-            </Col>
-          </Row>
-        </div>
-      </section>
-    </>
-  );
+                        </Col>
+                    </Row>
+                </div>
+            </section>
+        </>
+    );
 };
 
 export default Checkout;
@@ -965,16 +875,16 @@ export const useLoadOrders = () => {
         if (typeof window !== "undefined") {
             const loginUser = JSON.parse(localStorage.getItem("login_user") || "{}");
 
-      if (loginUser?.uid) {
-        const storedOrders = JSON.parse(localStorage.getItem("orders") || "{}");
-        const userOrders = storedOrders[loginUser.uid] || [];
-        if (userOrders.length > 0) dispatch(setOrders(userOrders));
-      } else {
-        const guestOrders = JSON.parse(
-          localStorage.getItem("guest_orders") || "[]",
-        );
-        if (guestOrders.length > 0) dispatch(setOrders(guestOrders));
-      }
-    }
-  }, [dispatch]);
+            if (loginUser?.uid) {
+                const storedOrders = JSON.parse(localStorage.getItem("orders") || "{}");
+                const userOrders = storedOrders[loginUser.uid] || [];
+                if (userOrders.length > 0) dispatch(setOrders(userOrders));
+            } else {
+                const guestOrders = JSON.parse(
+                    localStorage.getItem("guest_orders") || "[]",
+                );
+                if (guestOrders.length > 0) dispatch(setOrders(guestOrders));
+            }
+        }
+    }, [dispatch]);
 };
