@@ -2,8 +2,7 @@
 
 import ProductItemCard from "@/components/item/ProductItemCard";
 import useSWR from "swr";
-import { Col, Row } from "react-bootstrap";
-import { Fade } from "react-awesome-reveal";
+
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const API_BASE = process.env.NEXT_PUBLIC_DOMAIN;
@@ -41,30 +40,14 @@ export default function OfferSection({ slug }: { slug: string }) {
   }));
 
   return (
-    <section className="pt-20 px-4  bg-gray-50">
-        <Row className="bb-pro-box">
-            {/* Sidebar */}
-            <Col lg={12} xs={12}>
-                <Row>
+    <section className="py-10 px-4 bg-gray-50">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {formattedProducts.map((item: any, idx: number) => (
-            <div
-                className="col-xl-3 col-md-3 col-6 mb-24 bb-product-box"
-                key={item.id || idx}
-            >
-                <Fade
-                    triggerOnce
-                    direction="up"
-                    duration={1000}
-                    delay={200}
-                >
+          <div className="" key={idx}>
             <ProductItemCard key={item.id || idx} data={item} />
-                </Fade>
-            </div>
-
+          </div>
         ))}
-                </Row>
-            </Col>
-        </Row>
+      </div>
     </section>
   );
 }

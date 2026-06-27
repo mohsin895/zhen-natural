@@ -29,6 +29,7 @@ const Orders = () => {
     <>
       <section className="section-cart padding-tb-50">
         <div className="container">
+          <h2 className="mb-4 ">Your Order</h2>
           <Row className="mb-minus-24">
             <div className="col-12 mb-24">
               <Fade
@@ -38,59 +39,63 @@ const Orders = () => {
                 delay={200}
                 className="bb-cart-table"
               >
-                <table style={{ width: "100%" }}>
-                  <thead>
-                    <tr style={{ textAlign: "center" }}>
-                      <th>Orders ID</th>
-                      <th>Shipping</th>
-                      <th>Quantity</th>
-                      <th>Date</th>
-                      <th>Price</th>
-                      <th>Status</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders
-                      .filter((order: any) => order.status == "Pending")
-                      .map((data: any, index) => (
-                        <tr style={{ textAlign: "center" }} key={index}>
-                          <td>
-                            <a onClick={(e) => e.preventDefault()} href="#">
-                              <div className="Product-cart">
-                                <span>{data.orderId}</span>
+                <div className="table-responsive">
+                  <table className="order-table" style={{ width: "100%" }}>
+                    <thead>
+                      <tr style={{ textAlign: "center" }}>
+                        <th>Orders ID</th>
+                        <th>Shipping</th>
+                        <th>Quantity</th>
+                        <th>Date</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders
+                        .filter((order: any) => order.status == "Pending")
+                        .map((data: any, index) => (
+                          <tr style={{ textAlign: "center" }} key={index}>
+                            <td>
+                              <a onClick={(e) => e.preventDefault()} href="#">
+                                <div className="Product-cart">
+                                  <span>{data.orderId}</span>
+                                </div>
+                              </a>
+                            </td>
+                            <td>
+                              <span className="price">
+                                {data.shippingMethod}
+                              </span>
+                            </td>
+                            <td>
+                              <span className="price">{data.totalItems}</span>
+                            </td>
+                            <td>
+                              <span className="price">{currentDate}</span>
+                            </td>
+                            <td>
+                              <span className="price">{data.totalPrice}</span>
+                            </td>
+                            <td>
+                              <span className="price">{data.status}</span>
+                            </td>
+                            <td>
+                              <div className="cart-btn">
+                                <button
+                                  className="bb-btn-1 btn-padding"
+                                  onClick={() => handleViewBtn(data.orderId)}
+                                >
+                                  View
+                                </button>
                               </div>
-                            </a>
-                          </td>
-                          <td>
-                            <span className="price">{data.shippingMethod}</span>
-                          </td>
-                          <td>
-                            <span className="price">{data.totalItems}</span>
-                          </td>
-                          <td>
-                            <span className="price">{currentDate}</span>
-                          </td>
-                          <td>
-                            <span className="price">{data.totalPrice}</span>
-                          </td>
-                          <td>
-                            <span className="price">{data.status}</span>
-                          </td>
-                          <td>
-                            <div className="cart-btn">
-                              <button
-                                className="bb-btn-1 btn-padding"
-                                onClick={() => handleViewBtn(data.orderId)}
-                              >
-                                View
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
               </Fade>
             </div>
           </Row>

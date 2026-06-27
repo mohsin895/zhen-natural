@@ -29,8 +29,12 @@ const BestSellingProductSlider: React.FC<SliderProps> = ({
 
         const result = await res.json();
 
-        // Access result.data since your API returns { data: [...] }
-        setProducts(hasPaginate ? result.data : result.data);
+        const filteredProducts = result.data.filter(
+          (item: any) =>
+            Number(item.has_combo) !== 1 && Number(item.has_upcoming) !== 1,
+        );
+
+        setProducts(filteredProducts);
       } catch (err: any) {
         setError(err.message || "Something went wrong");
       } finally {

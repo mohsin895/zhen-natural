@@ -14,9 +14,17 @@ interface OrderItem {
   quantity?: number;
   tax?: number | string;
   discount?: number | string;
+
   thumbnail_image?: string;
   image?: string;
   photo?: string;
+
+  product?: {
+    name?: string;
+    thumbnail?: {
+      file_name?: string;
+    };
+  };
 }
 
 interface Order {
@@ -34,7 +42,7 @@ interface Order {
   txn_id?: string;
   created_at?: string;
   sub_total?: number | string;
-  shipping_charge?: number | string;
+  shipping_cost?: number | string;
   tax?: number | string;
   discount?: number | string;
   grand_total?: number | string;
@@ -119,12 +127,17 @@ const OrderPage = ({ id }: OrderPageProps) => {
 
   // ── Get Image ──
   const getImage = (item: OrderItem) => {
-    const img = item?.thumbnail_image || item?.image || item?.photo;
-    if (!img) return "";
+    const img =
+      item?.thumbnail_image ||
+      item?.image ||
+      item?.photo ||
+      item?.product?.thumbnail?.file_name;
+
+    if (!img) return "/placeholder.png";
+
     if (String(img).startsWith("http")) return img;
-    const basePath = process.env.NEXT_PUBLIC_PATH || "";
-    const cleanPath = String(img).startsWith("/") ? img : `/${img}`;
-    return `${basePath}${cleanPath}`;
+
+    return `${process.env.NEXT_PUBLIC_PATH}/${img}`;
   };
 
   // ── Price Parser ──
@@ -192,7 +205,7 @@ const OrderPage = ({ id }: OrderPageProps) => {
         acc + parsePrice(item.price) * (item.quantity || 1),
       0,
     );
-  const shippingCharge = parsePrice(order.shipping_charge) || 0;
+  const shippingCharge = parsePrice(order.shipping_cost) || 0;
   const taxAmount = parsePrice(order.tax) || 0;
   const discountAmount = parsePrice(order.discount) || 0;
   const grandTotal =
@@ -207,6 +220,101 @@ const OrderPage = ({ id }: OrderPageProps) => {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         .order-wrapper { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+        @media print {
+
+  @page {
+    size: A4;
+    margin: 5mm;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    zoom: 0.75;
+    font-size: 11px !important;
+  }
+
+  .order-buttons,
+  header,
+  nav,
+  footer,
+  .navbar,
+  .footer {
+    display: none !important;
+  }
+
+  section {
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .order-wrapper {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Billing, Shipping, Payment, Status side by side */
+  .print-two-col {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+  }
+
+  .print-two-col > div {
+    width: 50% !important;
+    max-width: 50% !important;
+    flex: 0 0 50% !important;
+  }
+
+  /* remove large padding */
+  [style*="paddingLeft: 120px"] {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .logo-section {
+    margin-bottom: 10px !important;
+  }
+
+  .logo-section img {
+    max-width: 80px !important;
+  }
+
+  .order-code-center {
+    font-size: 18px !important;
+  }
+
+  .card-title {
+    margin-bottom: 5px !important;
+    padding-bottom: 5px !important;
+    font-size: 12px !important;
+  }
+
+  .card-label,
+  .card-value {
+    font-size: 10px !important;
+  }
+
+  .items-table th,
+  .items-table td {
+    padding: 4px !important;
+    font-size: 10px !important;
+  }
+
+  .product-img {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .summary-item {
+    padding: 2px 0 !important;
+    font-size: 10px !important;
+  }
+
+  * {
+    box-shadow: none !important;
+  }
+}
         
         /* Header Section */
         .order-header {
@@ -581,6 +689,7 @@ const OrderPage = ({ id }: OrderPageProps) => {
 
         {/* Billing & Shipping */}
         <Row
+          className="print-two-col"
           style={{
             marginBottom: "20px",
             paddingLeft: "120px",
@@ -638,6 +747,7 @@ const OrderPage = ({ id }: OrderPageProps) => {
 
         {/* Payment & Status */}
         <Row
+          className="print-two-col"
           style={{
             marginBottom: "20px",
             paddingLeft: "120px",
@@ -700,8 +810,6 @@ const OrderPage = ({ id }: OrderPageProps) => {
             md={6}
             style={{
               marginBottom: "20px",
-              paddingLeft: "120px",
-              paddingRight: "120px",
             }}
           >
             <div className="   ">
@@ -796,7 +904,9 @@ const OrderPage = ({ id }: OrderPageProps) => {
                           />
                         </td>
                         <td className="product-name-cell">
-                          {item.product_name || `Product #${item.product_id}`}
+                          {item.product_name ||
+                            item.product?.name ||
+                            `Product #${item.product_id}`}
                         </td>
                         <td style={{ textAlign: "center" }}>qty: {itemQty}</td>
                         <td style={{ textAlign: "right" }}>
@@ -845,12 +955,12 @@ const OrderPage = ({ id }: OrderPageProps) => {
             <div className="summary-item">
               <span className="summary-label">Shipping Charge</span>
               <span className="summary-value">
-                + ৳ {shippingCharge.toFixed(2)}
+                ৳ {shippingCharge.toFixed(2)}
               </span>
             </div>
             <div className="summary-item">
               <span className="summary-label">TAX/GST</span>
-              <span className="summary-value">+ ৳ {taxAmount.toFixed(2)}</span>
+              <span className="summary-value"> ৳ {taxAmount.toFixed(2)}</span>
             </div>
             {discountAmount > 0 && (
               <div className="summary-item">

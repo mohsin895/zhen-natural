@@ -355,6 +355,42 @@ const WholesalePage = () => {
   grid-template-columns: repeat(6, 1fr); /* 6 items per row */
   gap: 12px;
 }
+  .ws-prod-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1400px) {
+  .ws-prod-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 1200px) {
+  .ws-prod-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .ws-prod-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .ws-prod-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .ws-prod-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
         .ws-prod-msg { grid-column: 1/-1; text-align: center; padding: 40px; color: #82bc23; font-size: 14px; }
 
         /* ── Success ── */

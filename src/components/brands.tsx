@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Fade } from "react-awesome-reveal";
 import { Row } from "react-bootstrap";
 import "swiper/css";
+import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 interface Brand {
@@ -56,11 +56,13 @@ const Brands: React.FC<BrandsProps> = ({
   const settings = {
     spaceBetween: 24,
     loop: true,
-    speed: 500,
+    speed: 3000,
     autoplay: {
-      delay: 3000,
+      delay: 0,
       disableOnInteraction: false,
+      pauseOnMouseEnter: false,
     },
+    allowTouchMove: true,
     breakpoints: {
       0: { slidesPerView: 1 },
       321: { slidesPerView: 2 },
@@ -86,44 +88,35 @@ const Brands: React.FC<BrandsProps> = ({
                     "linear-gradient(to right, #0ed7ff 8%, #82bc23 14%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  fontSize: "42px",
+                  fontSize: "38px",
                 }}
               >
                 Explore Brands
               </h2>
             </div>
 
-            <Swiper {...settings} className="bb-instagram-slider">
+            <Swiper
+              {...settings}
+              modules={[Autoplay]}
+              className="bb-instagram-slider"
+            >
               {brands.length > 0 ? (
                 brands.map((brand, index) => (
                   <SwiperSlide key={brand.id || index}>
-                    <Fade
-                      triggerOnce
-                      direction="up"
-                      duration={1000}
-                      delay={200}
-                    >
-                      <div className="bb-instagram-card">
-                        <div className="instagram-img">
-                          <a
-                            onClick={(e) => e.preventDefault()}
-                            href="#"
-                            title={brand.name}
-                          >
-                            <img
-                              src={
-                                brand.icon
-                                  ? brand.icon
-                                  : brand.icon
-                                    ? brand.icon
-                                    : " "
-                              }
-                              alt={brand.name || `brand-${index + 1}`}
-                            />
-                          </a>
-                        </div>
+                    <div className="bb-instagram-card">
+                      <div className="instagram-img">
+                        <a
+                          onClick={(e) => e.preventDefault()}
+                          href="#"
+                          title={brand.name}
+                        >
+                          <img
+                            src={brand.icon || ""}
+                            alt={brand.name || `brand-${index + 1}`}
+                          />
+                        </a>
                       </div>
-                    </Fade>
+                    </div>
                   </SwiperSlide>
                 ))
               ) : (

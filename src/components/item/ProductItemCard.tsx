@@ -200,24 +200,24 @@ const ProductItemCard = ({ data }: any) => {
                         <span className="flags"></span>
                     ) : null}
 
-                    <Link href={`/details/${data.slug}`}>
-                        <div
-                            className="inner-img h-[220px] overflow-hidden"
-                            style={isOutOfStock ? { filter: "grayscale(60%)" } : {}}
-                        >
-                            <img
-                                className="w-full h-[260px] object-cover"
-                                style={{ height: "260px" }}
-                                src={data.image}
-                                alt={data.title}
-                            />
-                            <img
-                                className="hover-img w-full h-[260px] object-cover"
-                                src={data.imageTwo}
-                                alt={data.title}
-                            />
-                        </div>
-                    </Link>
+          <Link href={`/details/${data.slug}`}>
+            <div
+              className="inner-img h-[180px] sm:h-[220px] md:h-[260px] overflow-hidden"
+              style={isOutOfStock ? { filter: "grayscale(60%)" } : {}}
+            >
+              <img
+                className="w-full md:h-[260px] h-full object-cover"
+                style={{ height: "260px" }}
+                src={data.image}
+                alt={data.title}
+              />
+              <img
+                className="hover-img w-full h-full md:h-[260px] object-cover"
+                src={data.imageTwo}
+                alt={data.title}
+              />
+            </div>
+          </Link>
 
                     {isOutOfStock && (
                         <div

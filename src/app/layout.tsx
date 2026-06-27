@@ -1,7 +1,12 @@
+// Item Name: Blueberry - eCommerce Next JS template.
+// Author: Maraviya Infotech
+// Version: 1
+// Copyright 2024
 import Layout from "@/components/layout";
 import Providers from "@/store/Provider";
 import type { Metadata } from "next";
-import Script from "next/script";
+import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
